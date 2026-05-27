@@ -465,6 +465,69 @@
       min-height: 26px;
     }
 
+    .setting-row.paywalled {
+      padding: 9px 10px 9px 0;
+      border-radius: 14px;
+      color: #232229;
+    }
+
+    .setting-row.paywalled .setting-copy {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .pro-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: #F1F3FF;
+      color: #2F43DE;
+      border: 1px solid #D8DEFF;
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+
+    .pro-badge .pro-diamond-icon {
+      width: 13px;
+      height: 13px;
+      flex: 0 0 auto;
+      display: block;
+    }
+
+    .toggle.locked {
+      background: #EEF0F5;
+      border: 1px solid #D8DADF;
+      cursor: pointer;
+    }
+
+    .toggle.locked:after {
+      left: 4px;
+      right: auto;
+      background: #FFFFFF;
+    }
+
+    .toggle.locked:before {
+      content: "🔒";
+      position: absolute;
+      right: -24px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      opacity: .72;
+    }
+
+    .setting-row.paywalled:hover .pro-badge {
+      background: #E8EBFF;
+      border-color: #A0AFF2;
+    }
+
     .toggle {
       width: 39px;
       height: 24px;
@@ -824,190 +887,6 @@
       background: #F9F9FB;
     }
 
-
-    .pro-locked {
-      opacity: .96;
-      cursor: pointer;
-    }
-
-    .pro-locked .setting-copy {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .pro-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      height: 26px;
-      padding: 0 10px;
-      border: 0;
-      border-radius: 7px;
-      background: #2F43DE;
-      color: #FFFFFF;
-      font-size: 13px;
-      font-weight: 700;
-      line-height: 1;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(47, 67, 222, .18);
-      white-space: nowrap;
-    }
-
-    .pro-pill:before {
-      content: "✦";
-      font-size: 13px;
-      line-height: 1;
-    }
-
-    .pro-locked .toggle {
-      background: #D8DADF;
-    }
-
-    .pro-locked .toggle:after {
-      left: 4px;
-      right: auto;
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(37, 36, 40, .26);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 30;
-      padding: 24px;
-    }
-
-    .modal-backdrop.show {
-      display: flex;
-    }
-
-    .pro-modal {
-      width: min(430px, 100%);
-      background: #FFFFFF;
-      border: 1px solid #E7E7E9;
-      border-radius: 18px;
-      box-shadow: 0 22px 70px rgba(37, 36, 40, .22);
-      padding: 24px;
-      color: #252428;
-    }
-
-    .pro-modal-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 18px;
-      margin-bottom: 14px;
-    }
-
-    .pro-modal-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      height: 30px;
-      padding: 0 11px;
-      border-radius: 8px;
-      background: #2F43DE;
-      color: #FFFFFF;
-      font-size: 14px;
-      font-weight: 750;
-      margin-bottom: 14px;
-    }
-
-    .pro-modal-kicker:before {
-      content: "✦";
-    }
-
-    .pro-modal h3 {
-      font-size: 21px;
-      line-height: 1.16;
-      letter-spacing: -.25px;
-      margin: 0 0 8px;
-      font-weight: 750;
-    }
-
-    .pro-modal p {
-      font-size: 15px;
-      line-height: 1.42;
-      color: #66646d;
-      margin: 0;
-    }
-
-    .modal-close {
-      border: 0;
-      background: transparent;
-      color: #777580;
-      font-size: 25px;
-      line-height: 1;
-      cursor: pointer;
-      padding: 0;
-    }
-
-    .pro-benefits {
-      display: grid;
-      gap: 9px;
-      margin: 18px 0 22px;
-    }
-
-    .pro-benefit {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 36px;
-      padding: 9px 11px;
-      border: 1px solid #E7E7E9;
-      border-radius: 10px;
-      background: #F9F9FB;
-      font-size: 14.5px;
-      font-weight: 600;
-    }
-
-    .pro-benefit:before {
-      content: "✓";
-      color: #59D994;
-      font-weight: 800;
-    }
-
-    .pro-modal-actions {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .upgrade-pro {
-      height: 46px;
-      padding: 0 18px;
-      border-radius: 9px;
-      border: 0;
-      background: #252428;
-      color: #FFFFFF;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .compare-plans {
-      height: 46px;
-      padding: 0 12px;
-      border-radius: 9px;
-      border: 0;
-      background: transparent;
-      color: #66646d;
-      font-size: 14.5px;
-      font-weight: 650;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
     @media (max-width: 1100px) {
       .app { grid-template-columns: 84px 1fr; }
       .share-panel {
@@ -1091,11 +970,15 @@
               <div class="settings-list">
                 <div class="setting-row"><span>Streaming</span><span class="toggle"></span></div>
                 <div class="setting-row"><span>MP3 download</span><span class="toggle"></span></div>
-                <div class="setting-row pro-locked" data-pro-feature="HQ download (WAV, FLAC...)"><span class="setting-copy">HQ download (WAV, FLAC...)<button class="pro-pill" type="button">Pro</button></span><span class="toggle off"></span></div>
-                <div class="setting-row"><span>Track information</span><span class="toggle"></span></div>
+                <div class="setting-row"><span>HQ download (WAV, FLAC...)</span><span class="toggle"></span></div>
+                <div class="setting-row paywalled"><span class="setting-copy">Track information<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
+</svg> Pro</span></span><span class="toggle locked" aria-label="Track information is a Pro feature" title="Upgrade to Pro to unlock Track information"></span></div>
                 <div class="setting-row"><span>Media & documents</span><span class="toggle"></span></div>
                 <div class="setting-row"><span>Project description</span><span class="toggle"></span></div>
-                <div class="setting-row pro-locked" data-pro-feature="Password protection"><span class="setting-copy">Password protection<button class="pro-pill" type="button">Pro</button></span><span class="toggle off"></span></div>
+                <div class="setting-row paywalled"><span class="setting-copy">Password protection<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
+</svg> Pro</span></span><span class="toggle locked off" aria-label="Password protection is a Pro feature" title="Upgrade to Pro to unlock Password protection"></span></div>
               </div>
               <button class="primary-wide">Create link</button>
             </div>
@@ -1119,9 +1002,13 @@
               <div class="settings-list">
                 <div class="setting-row"><span>Streaming</span><span class="toggle"></span></div>
                 <div class="setting-row"><span>MP3 download</span><span class="toggle"></span></div>
-                <div class="setting-row pro-locked" data-pro-feature="HQ download (WAV, FLAC...)"><span class="setting-copy">HQ download (WAV, FLAC...)<button class="pro-pill" type="button">Pro</button></span><span class="toggle off"></span></div>
-                <div class="setting-row"><span>Track information</span><span class="toggle"></span></div>
-                <div class="setting-row pro-locked" data-pro-feature="Password protection"><span class="setting-copy">Password protection<button class="pro-pill" type="button">Pro</button></span><span class="toggle off"></span></div>
+                <div class="setting-row"><span>HQ download (WAV, FLAC...)</span><span class="toggle"></span></div>
+                <div class="setting-row paywalled"><span class="setting-copy">Track information<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
+</svg> Pro</span></span><span class="toggle locked" aria-label="Track information is a Pro feature" title="Upgrade to Pro to unlock Track information"></span></div>
+                <div class="setting-row paywalled"><span class="setting-copy">Password protection<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
+</svg> Pro</span></span><span class="toggle locked off" aria-label="Password protection is a Pro feature" title="Upgrade to Pro to unlock Password protection"></span></div>
               </div>
               <button class="primary-wide">Send invites</button>
             </div>
@@ -1150,11 +1037,15 @@
               <div class="settings-list">
                 <div class="setting-row"><span>Streaming</span><span class="toggle"></span></div>
                 <div class="setting-row"><span>MP3 download</span><span class="toggle"></span></div>
-                <div class="setting-row pro-locked" data-pro-feature="HQ download (WAV, FLAC...)"><span class="setting-copy">HQ download (WAV, FLAC...)<button class="pro-pill" type="button">Pro</button></span><span class="toggle off"></span></div>
-                <div class="setting-row"><span>Track information</span><span class="toggle"></span></div>
+                <div class="setting-row"><span>HQ download (WAV, FLAC...)</span><span class="toggle"></span></div>
+                <div class="setting-row paywalled"><span class="setting-copy">Track information<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
+</svg> Pro</span></span><span class="toggle locked" aria-label="Track information is a Pro feature" title="Upgrade to Pro to unlock Track information"></span></div>
                 <div class="setting-row"><span>Media & documents</span><span class="toggle"></span></div>
                 <div class="setting-row"><span>Project description</span><span class="toggle"></span></div>
-                <div class="setting-row pro-locked" data-pro-feature="Password protection"><span class="setting-copy">Password protection<button class="pro-pill" type="button">Pro</button></span><span class="toggle off"></span></div>
+                <div class="setting-row paywalled"><span class="setting-copy">Password protection<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
+</svg> Pro</span></span><span class="toggle locked off" aria-label="Password protection is a Pro feature" title="Upgrade to Pro to unlock Password protection"></span></div>
               </div>
               <div class="edit-actions"><button class="secondary-btn close-edit">Cancel</button><button class="save-btn">Save</button></div>
             </div>
@@ -1176,9 +1067,13 @@
               <div class="settings-list">
                 <div class="setting-row"><span>Streaming</span><span class="toggle"></span></div>
                 <div class="setting-row"><span>MP3 download</span><span class="toggle"></span></div>
-                <div class="setting-row pro-locked" data-pro-feature="HQ download (WAV, FLAC...)"><span class="setting-copy">HQ download (WAV, FLAC...)<button class="pro-pill" type="button">Pro</button></span><span class="toggle off"></span></div>
-                <div class="setting-row"><span>Track information</span><span class="toggle"></span></div>
-                <div class="setting-row pro-locked" data-pro-feature="Password protection"><span class="setting-copy">Password protection<button class="pro-pill" type="button">Pro</button></span><span class="toggle off"></span></div>
+                <div class="setting-row"><span>HQ download (WAV, FLAC...)</span><span class="toggle"></span></div>
+                <div class="setting-row paywalled"><span class="setting-copy">Track information<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
+</svg> Pro</span></span><span class="toggle locked" aria-label="Track information is a Pro feature" title="Upgrade to Pro to unlock Track information"></span></div>
+                <div class="setting-row paywalled"><span class="setting-copy">Password protection<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
+</svg> Pro</span></span><span class="toggle locked off" aria-label="Password protection is a Pro feature" title="Upgrade to Pro to unlock Password protection"></span></div>
               </div>
               <div class="edit-actions"><button class="resend-btn">↻ Resend email</button><button class="secondary-btn close-edit">Cancel</button><button class="save-btn">Save</button></div>
             </div>
@@ -1200,9 +1095,13 @@
               <div class="settings-list">
                 <div class="setting-row"><span>Streaming</span><span class="toggle"></span></div>
                 <div class="setting-row"><span>MP3 download</span><span class="toggle"></span></div>
-                <div class="setting-row pro-locked" data-pro-feature="HQ download (WAV, FLAC...)"><span class="setting-copy">HQ download (WAV, FLAC...)<button class="pro-pill" type="button">Pro</button></span><span class="toggle off"></span></div>
-                <div class="setting-row"><span>Track information</span><span class="toggle"></span></div>
-                <div class="setting-row pro-locked" data-pro-feature="Password protection"><span class="setting-copy">Password protection<button class="pro-pill" type="button">Pro</button></span><span class="toggle off"></span></div>
+                <div class="setting-row"><span>HQ download (WAV, FLAC...)</span><span class="toggle"></span></div>
+                <div class="setting-row paywalled"><span class="setting-copy">Track information<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
+</svg> Pro</span></span><span class="toggle locked" aria-label="Track information is a Pro feature" title="Upgrade to Pro to unlock Track information"></span></div>
+                <div class="setting-row paywalled"><span class="setting-copy">Password protection<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
+</svg> Pro</span></span><span class="toggle locked off" aria-label="Password protection is a Pro feature" title="Upgrade to Pro to unlock Password protection"></span></div>
               </div>
               <div class="edit-actions"><button class="resend-btn">↻ Resend email</button><button class="secondary-btn close-edit">Cancel</button><button class="save-btn">Save</button></div>
             </div>
@@ -1217,31 +1116,6 @@
   </div>
 
   <div class="chat">▢<span class="badge">1</span></div>
-
-
-  <div class="modal-backdrop" id="proModal" aria-hidden="true">
-    <div class="pro-modal" role="dialog" aria-modal="true" aria-labelledby="proModalTitle">
-      <div class="pro-modal-header">
-        <div>
-          <div class="pro-modal-kicker">Pro</div>
-          <h3 id="proModalTitle">Unlock Pro sharing controls</h3>
-          <p>Use advanced sharing options when you need more control over external access.</p>
-        </div>
-        <button class="modal-close" id="closeProModal" aria-label="Close">×</button>
-      </div>
-
-      <div class="pro-benefits">
-        <div class="pro-benefit">HQ downloads for WAV, FLAC and original files</div>
-        <div class="pro-benefit">Password-protected shares for sensitive projects</div>
-      </div>
-
-      <div class="pro-modal-actions">
-        <a class="upgrade-pro" href="https://clementsouchier-stack.github.io/pricing-checkout/">Upgrade to Pro</a>
-        <a class="compare-plans" href="https://clementsouchier-stack.github.io/pricing-checkout/">Compare plans</a>
-      </div>
-    </div>
-  </div>
-
 
   <script>
     const openShare = document.getElementById('openShare');
@@ -1346,41 +1220,6 @@
         button.textContent = '✓ Email resent';
         window.setTimeout(() => { button.textContent = original; }, 1200);
       });
-    });
-
-
-    const proModal = document.getElementById('proModal');
-    const closeProModal = document.getElementById('closeProModal');
-    const proLockedRows = document.querySelectorAll('.pro-locked');
-
-    function openProModal(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      proModal.classList.add('show');
-      proModal.setAttribute('aria-hidden', 'false');
-    }
-
-    function closeUpgradeModal() {
-      proModal.classList.remove('show');
-      proModal.setAttribute('aria-hidden', 'true');
-    }
-
-    proLockedRows.forEach(row => {
-      row.addEventListener('click', openProModal);
-    });
-
-    closeProModal.addEventListener('click', closeUpgradeModal);
-
-    proModal.addEventListener('click', (event) => {
-      if (event.target === proModal) closeUpgradeModal();
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && proModal.classList.contains('show')) {
-        closeUpgradeModal();
-      }
     });
 
   </script>
