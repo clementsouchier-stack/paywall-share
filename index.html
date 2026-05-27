@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bridge Share Panel — Full Prototype Bridge Palette</title>
+  <title>Bridge Share Panel — Paywall + Bridge Sidebar</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -887,6 +887,189 @@
       background: #F9F9FB;
     }
 
+
+    .bridge-sidebar {
+      background: var(--sidebar);
+      border-right: 1px solid #EEEEF1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 0 14px;
+      color: #777580;
+      overflow: hidden;
+    }
+
+    .workspace-logo {
+      width: 100%;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      margin: 0 0 32px;
+    }
+
+    .workspace-logo img {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #fff;
+      outline: 2px solid #A0AFF2;
+      outline-offset: 2px;
+      transition: outline-color .16s ease, transform .16s ease;
+    }
+
+    .workspace-logo:hover img {
+      outline-color: #D0D2D8;
+      transform: translateY(-1px);
+    }
+
+    .bridge-add {
+      width: 64px;
+      height: 64px;
+      border-radius: 999px;
+      border: 1px solid #D0D2D8;
+      background: #F9F9FB;
+      color: #232229;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 5px 12px rgba(35, 34, 41, .10);
+      cursor: pointer;
+      margin-bottom: 32px;
+      transition: background .16s ease, box-shadow .16s ease, transform .16s ease;
+    }
+
+    .bridge-add:hover {
+      background: #FFFFFF;
+      box-shadow: 0 8px 18px rgba(35, 34, 41, .13);
+      transform: translateY(-1px);
+    }
+
+    .bridge-add:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 8px rgba(35, 34, 41, .12);
+    }
+
+    .bridge-add svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    .bridge-nav-items {
+      width: 100%;
+      display: grid;
+      gap: 16px;
+    }
+
+    .bridge-nav-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      min-height: 58px;
+      text-decoration: none;
+      color: #777580;
+      font-size: 14px;
+      line-height: 1.2;
+      font-weight: 500;
+      transition: color .16s ease;
+    }
+
+    .bridge-nav-item:hover {
+      color: #232229;
+    }
+
+    .bridge-nav-item.active {
+      color: #232229;
+      font-weight: 650;
+    }
+
+    .bridge-nav-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: #9C9AA4;
+      transition: background .16s ease, color .16s ease, transform .16s ease;
+    }
+
+    .bridge-nav-item:hover .bridge-nav-icon {
+      background: #FFFFFF;
+      color: #777580;
+    }
+
+    .bridge-nav-item.active .bridge-nav-icon {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .bridge-nav-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+      stroke: currentColor;
+    }
+
+    .bridge-nav-item:not(.active) .bridge-nav-icon svg {
+      fill: none;
+    }
+
+    .bridge-nav-item.analytics .bridge-nav-icon svg {
+      fill: currentColor;
+      stroke: none;
+    }
+
+    .beta-badge {
+      position: absolute;
+      top: -8px;
+      right: 10px;
+      z-index: 1;
+      border-radius: 999px;
+      border: 1px solid #E7E7E9;
+      background: #FFFFFF;
+      color: #232229;
+      padding: 3px 7px;
+      font-size: 8px;
+      font-weight: 750;
+      line-height: 1;
+      letter-spacing: .02em;
+    }
+
+    .bridge-sidebar-footer {
+      width: calc(100% - 32px);
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid #E7E7E9;
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    .bridge-sidebar-footer a {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      color: #A2A0AA;
+      transition: color .16s ease, transform .16s ease;
+    }
+
+    .bridge-sidebar-footer a:hover {
+      color: #777580;
+      transform: translateY(-1px);
+    }
+
+    .bridge-sidebar-footer svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+    }
+
+
     @media (max-width: 1100px) {
       .app { grid-template-columns: 84px 1fr; }
       .share-panel {
@@ -900,19 +1083,77 @@
 </head>
 <body>
   <div class="app">
-    <aside class="sidebar">
-      <div class="brand"></div>
-      <div class="round-add">+</div>
-      <div class="nav-item"><div class="nav-icon">♫</div><div>Library</div></div>
-      <div class="nav-item active"><div class="nav-icon">▰</div><div>Projects</div></div>
-      <div class="nav-item"><div class="nav-icon">⌯</div><div>Shared</div></div>
-      <div class="nav-item"><div class="nav-icon">▱</div><div>Received</div></div>
-      <div class="nav-item"><div class="nav-icon">◔</div><div>Analytics</div></div>
-      <div class="sidebar-bottom">
-        <div class="nav-icon" style="background:#2F43DE;color:#2F43DE;border-radius:50%;width:25px;height:25px;box-shadow:0 0 18px rgba(45,76,255,.55)">●</div>
-        <div style="display:flex;gap:16px;font-size:23px;color:#75737d"><span>⚙</span><span>♙</span></div>
-      </div>
-    </aside>
+    
+<aside class="bridge-sidebar" aria-label="Main navigation">
+  <div class="workspace-logo" data-tooltip-content="My Label">
+    <img src="https://images.bridge.audio/6it9k4Qas5Ft9fKpBkMTn6CApWkQRALQYlnTwPHPOiE/fill/400/400/ce/0/czM6Ly9iZGdhLXByZC1wdWIvZDAvMWEvZjYvNzUvNmI2ZTA3M2EtZDU5Ny00NjE3LWFiYWUtYTQ1Njc1ZjYxYWQwLg.jpg" alt="Logo of My Label workspace" />
+  </div>
+
+  <button class="bridge-add" aria-label="Create new">
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"></path>
+    </svg>
+  </button>
+
+  <nav class="bridge-nav-items">
+    <a class="bridge-nav-item active" href="/library/tracks">
+      <span class="bridge-nav-icon">
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path fill-rule="evenodd" d="M17.721 1.599a.75.75 0 0 1 .279.583v11.29a2.25 2.25 0 0 1-1.774 2.2l-2.041.44a2.216 2.216 0 0 1-.938-4.332l2.662-.577a.75.75 0 0 0 .591-.733V6.112l-8 1.73v7.684a2.25 2.25 0 0 1-1.774 2.2l-2.042.44a2.216 2.216 0 1 1-.935-4.331l2.659-.573A.75.75 0 0 0 7 12.529V4.236a.75.75 0 0 1 .591-.733l9.5-2.054a.75.75 0 0 1 .63.15Z" clip-rule="evenodd"></path>
+        </svg>
+      </span>
+      <span>Library</span>
+    </a>
+
+    <a class="bridge-nav-item" href="/projects">
+      <span class="bridge-nav-icon">
+        <svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776"></path>
+        </svg>
+      </span>
+      <span>Projects</span>
+    </a>
+
+    <a class="bridge-nav-item" href="/shared">
+      <span class="bridge-nav-icon">
+        <svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z"></path>
+        </svg>
+      </span>
+      <span>Shared</span>
+    </a>
+
+    <a class="bridge-nav-item" href="/inbox">
+      <span class="bridge-nav-icon">
+        <svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z"></path>
+        </svg>
+      </span>
+      <span>Received</span>
+    </a>
+
+    <a class="bridge-nav-item analytics" href="/analytics">
+      <span class="beta-badge">BETA</span>
+      <span class="bridge-nav-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M2.25 13.5C2.25 8.94365 5.94365 5.25 10.5 5.25C10.9142 5.25 11.25 5.58579 11.25 6V12.75H18C18.4142 12.75 18.75 13.0858 18.75 13.5C18.75 18.0563 15.0563 21.75 10.5 21.75C5.94365 21.75 2.25 18.0563 2.25 13.5Z"></path>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M12.75 3C12.75 2.58579 13.0858 2.25 13.5 2.25C18.0563 2.25 21.75 5.94365 21.75 10.5C21.75 10.9142 21.4142 11.25 21 11.25H13.5C13.0858 11.25 12.75 10.9142 12.75 10.5V3Z"></path>
+        </svg>
+      </span>
+      <span>Analytics</span>
+    </a>
+  </nav>
+
+  <div class="bridge-sidebar-footer">
+    <a href="/settings/workspace" aria-label="Settings">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M7.84 1.804A1 1 0 0 1 8.82 1h2.36a1 1 0 0 1 .98.804l.331 1.652a6.993 6.993 0 0 1 1.929 1.115l1.598-.54a1 1 0 0 1 1.186.447l1.18 2.044a1 1 0 0 1-.205 1.251l-1.267 1.113a7.047 7.047 0 0 1 0 2.228l1.267 1.113a1 1 0 0 1 .206 1.25l-1.18 2.045a1 1 0 0 1-1.187.447l-1.598-.54a6.993 6.993 0 0 1-1.929 1.115l-.33 1.652a1 1 0 0 1-.98.804H8.82a1 1 0 0 1-.98-.804l-.331-1.652a6.993 6.993 0 0 1-1.929-1.115l-1.598.54a1 1 0 0 1-1.186-.447l-1.18-2.044a1 1 0 0 1 .205-1.251l1.267-1.114a7.05 7.05 0 0 1 0-2.227L1.821 7.773a1 1 0 0 1-.206-1.25l1.18-2.045a1 1 0 0 1 1.187-.447l1.598.54A6.992 6.992 0 0 1 7.51 3.456l.33-1.652ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"></path></svg>
+    </a>
+    <a href="/settings/members?open=invite" aria-label="Invite">
+      <svg viewBox="0 0 18 17" aria-hidden="true"><path d="M14 4.75V7.25M14 7.25V9.75M14 7.25H16.5M14 7.25H11.5M9.625 3.8125C9.625 5.3658 8.3658 6.625 6.8125 6.625C5.2592 6.625 4 5.3658 4 3.8125C4 2.2592 5.2592 1 6.8125 1C8.3658 1 9.625 2.2592 9.625 3.8125ZM1.50077 14.5286C1.50026 14.4983 1.5 14.4679 1.5 14.4375C1.5 11.5035 3.87849 9.125 6.8125 9.125C9.74651 9.125 12.125 11.5035 12.125 14.4375V14.4396C12.125 14.4693 12.1247 14.499 12.1242 14.5286C10.5728 15.4627 8.7554 16 6.8125 16C4.8696 16 3.0522 15.4627 1.50077 14.5286Z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </a>
+  </div>
+</aside>
+
 
     <main class="main">
       <div class="top-actions">
