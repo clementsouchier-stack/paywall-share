@@ -1,1468 +1,1177 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bridge Share Panel — Paywall + Bridge Sidebar</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --primary: #2F43DE;
-      --primary-hover: #4456E1;
-      --primary-soft: #5C6CE5;
-      --primary-line: #A0AFF2;
-      --primary-bg: #E0E3FA;
-      --line: #E7E7E9;
-      --bg: #F7F7F8;
-      --soft-bg: #F9F9FB;
-      --panel: #FFFFFF;
-      --text: #232229;
-      --muted: #777580;
-      --soft-line: #E7E7E9;
-      --black: #252428;
-      --blue: #2F43DE;
-      --blue-soft: #E0E3FA;
-      --green: #59D994;
-      --grey-toggle: #E7E7E9;
-      --sidebar: #F7F7F8;
-      --shadow: 0 14px 40px rgba(35, 34, 41, 0.10);
-      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow: hidden;
-    }
-
-    body.panel-closed .app {
-      grid-template-columns: 112px 1fr 0;
-    }
-
-    body.panel-closed .share-panel {
-      transform: translateX(100%);
-      pointer-events: none;
-    }
-
-    body.panel-closed .top-actions {
-      right: 32px;
-    }
-
-    .app {
-      display: grid;
-      grid-template-columns: 112px 1fr 575px;
-      height: 100vh;
-      width: 100vw;
-      transition: grid-template-columns .24s ease;
-    }
-
-    .sidebar {
-      background: var(--sidebar);
-      border-right: 1px solid #eee;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 16px 0;
-      gap: 34px;
-      color: #b8b7bd;
-    }
-
-    .brand {
-      width: 64px;
-      height: 64px;
-      border: 2px solid #d2d1d7;
-      border-radius: 17px;
-      background: radial-gradient(circle at 92% 82%, #111 0 30%, transparent 31%), #61f5a4;
-      box-shadow: inset 0 0 0 4px #fff;
-    }
-
-    .round-add {
-      width: 74px;
-      height: 74px;
-      border-radius: 50%;
-      border: 1.5px solid #8d8b95;
-      background: #FFFFFF;
-      display: grid;
-      place-items: center;
-      font-size: 34px;
-      color: #24232a;
-      box-shadow: 0 4px 10px rgba(0,0,0,.12);
-    }
-
-    .nav-item {
-      width: 100%;
-      text-align: center;
-      font-size: 15px;
-      display: grid;
-      gap: 8px;
-      justify-items: center;
-    }
-
-    .nav-icon {
-      width: 38px;
-      height: 38px;
-      display: grid;
-      place-items: center;
-      font-size: 25px;
-      color: #c1c0c5;
-    }
-
-    .nav-item.active { color: var(--text); font-weight: 600; }
-    .nav-item.active .nav-icon {
-      background: var(--yellow);
-      color: #fff;
-      border-radius: 8px;
-    }
-
-    .sidebar-bottom {
-      margin-top: auto;
-      display: grid;
-      gap: 15px;
-      justify-items: center;
-      width: 100%;
-    }
-
-    .main {
-      background: #FFFFFF;
-      padding: 26px 32px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #85838b;
-      font-size: 18px;
-      margin-bottom: 34px;
-    }
-
-    .folder-icon {
-      width: 30px;
-      height: 26px;
-      background: var(--yellow);
-      border-radius: 5px;
-      position: relative;
-      display: inline-block;
-    }
-    .folder-icon:before {
-      
-      position: absolute;
-      top: 4px;
-      left: 5px;
-      width: 13px;
-      height: 5px;
-      border-radius: 2px;
-      background: #FFFFFF;
-    }
-
-    .hero {
-      height: 315px;
-      border-radius: 17px;
-      background: #000;
-      display: grid;
-      place-items: center;
-      margin-bottom: 25px;
-      overflow: hidden;
-    }
-
-    .k-logo {
-      font-size: 132px;
-      color: #fff;
-      font-weight: 900;
-      line-height: 1;
-      letter-spacing: -16px;
-      transform: scaleX(.85);
-    }
-
-    h1 {
-      font-size: 30px;
-      font-weight: 650;
-      letter-spacing: -.5px;
-      margin-bottom: 14px;
-    }
-
-    .updated {
-      color: #777580;
-      font-size: 14px;
-      margin-bottom: 35px;
-    }
-
-    .description {
-      margin-left: 16px;
-      color: #313038;
-      font-size: 16px;
-      margin-bottom: 58px;
-    }
-
-    .table-header {
-      display: grid;
-      grid-template-columns: 1fr 250px;
-      align-items: center;
-      border-bottom: 1px solid #E7E7E9;
-      padding: 0 14px 15px 14px;
-      font-weight: 700;
-      font-size: 20px;
-    }
-
-    .project-title { display: flex; align-items: center; gap: 10px; }
-    .checkbox {
-      width: 16px; height: 16px; border: 2px solid #c9c8ce; border-radius: 2px;
-      display: inline-block;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 50px 1fr 250px;
-      align-items: center;
-      padding: 12px 14px;
-      font-size: 16px;
-    }
-
-    .folder-small { width: 34px; height: 24px; }
-    .folder-small:before { width: 15px; height: 5px; }
-
-    .top-actions {
-      position: absolute;
-      top: 26px;
-      right: 32px;
-      display: flex;
-      gap: 10px;
-      z-index: 2;
-    }
-
-    .btn-top {
-      height: 46px;
-      padding: 0 22px;
-      border-radius: 4px;
-      border: 1px solid #777580;
-      background: #FFFFFF;
-      font-size: 16px;
-      font-weight: 650;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-    }
-
-    .btn-top.primary { background: #252428; color: #FFFFFF; border-color: #252428; }
-
-    .share-panel {
-      background: var(--panel);
-      border-left: 1px solid #E7E7E9;
-      box-shadow: -8px 0 26px rgba(0,0,0,.04);
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      height: 100vh;
-      overflow: hidden;
-      transition: transform .24s ease;
-    }
-
-    .panel-header {
-      height: 76px;
-      display: grid;
-      grid-template-columns: 42px 1fr 32px;
-      align-items: center;
-      padding: 0 26px;
-      font-size: 20px;
-      font-weight: 650;
-      flex: 0 0 auto;
-    }
-
-    .icon-btn {
-      border: 0;
-      background: transparent;
-      font-size: 28px;
-      color: #222126;
-      cursor: pointer;
-      line-height: 1;
-    }
-
-    .panel-content {
-      padding: 9px 26px 24px;
-      overflow-y: auto;
-      overflow-x: hidden;
-      flex: 1;
-      min-height: 0;
-      scrollbar-width: thin;
-      scrollbar-color: #c7c6ce transparent;
-    }
-
-    .panel-content::-webkit-scrollbar { width: 8px; }
-    .panel-content::-webkit-scrollbar-track { background: transparent; }
-    .panel-content::-webkit-scrollbar-thumb { background: #c7c6ce; border-radius: 999px; }
-
-    .intro {
-      font-size: 17px;
-      line-height: 1.35;
-      color: #292830;
-      margin-bottom: 26px;
-    }
-
-    .section-label {
-      font-size: 16px;
-      font-weight: 650;
-      margin: 24px 0 12px;
-    }
-
-    .choice-grid {
-      display: grid;
-      gap: 14px;
-      margin-bottom: 26px;
-    }
-
-    .choice-item {
-      display: grid;
-      gap: 8px;
-    }
-
-    .accordion-list { margin-bottom: 28px; }
-
-    .choice-card {
-      min-height: 72px;
-      border: 1px solid #E7E7E9;
-      border-radius: 999px;
-      padding: 9px 10px 9px 12px;
-      display: grid;
-      grid-template-columns: 44px 1fr 38px;
-      gap: 12px;
-      align-items: center;
-      cursor: pointer;
-      background: #FFFFFF;
-      box-shadow: 0 1px 0 rgba(20, 20, 28, .03);
-      transition: border-color .16s ease, background .16s ease, box-shadow .16s ease, transform .16s ease;
-    }
-
-    .choice-card:hover {
-      border-color: #b8b6c0;
-      background: #F9F9FB;
-      box-shadow: 0 6px 18px rgba(22, 22, 28, .06);
-    }
-
-    .choice-card.open {
-      border-color: #4456E1;
-      background: #FFFFFF;
-      box-shadow: 0 8px 22px rgba(37, 36, 40, .06);
-      position: relative;
-    }
-
-    
-
-    .choice-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #F7F7F8;
-      color: var(--blue);
-      display: grid;
-      place-items: center;
-      font-size: 18px;
-      transition: background .16s ease, color .16s ease;
-    }
-
-    .choice-card.open .choice-icon {
-      background: var(--blue);
-      color: #fff;
-    }
-
-    .choice-title {
-      font-size: 16px;
-      font-weight: 680;
-      margin-bottom: 3px;
-      letter-spacing: -.1px;
-    }
-
-    .choice-copy {
-      font-size: 13.5px;
-      color: var(--muted);
-      line-height: 1.25;
-    }
-
-    .arrow {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: #F7F7F8;
-      color: #8f8d96;
-      font-size: 18px;
-      display: grid;
-      place-items: center;
-      transition: transform .16s ease, color .16s ease, background .16s ease;
-    }
-
-    .choice-card.open .arrow {
-      transform: rotate(180deg);
-      color: var(--blue);
-      background: #FFFFFF;
-    }
-
-    .mini-panel {
-      border: 1px solid #E7E7E9;
-      border-radius: 18px;
-      padding: 18px;
-      margin: 0 4px 4px;
-      background: #FFFFFF;
-      box-shadow: 0 10px 26px rgba(20, 20, 28, .06);
-      display: none;
-    }
-
-    .mini-panel.show {
-      display: block;
-      animation: panelReveal .18s ease both;
-    }
-
-    @keyframes panelReveal {
-      from { opacity: 0; transform: translateY(-4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-    .tab {
-      min-height: 52px;
-      border: 1px solid var(--line);
-      background: #FFFFFF;
-      border-radius: 6px;
-      font-size: 15px;
-      font-weight: 650;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-    }
-    .tab.active { border-color: var(--blue); background: var(--blue-soft); color: var(--blue); }
-
-    .field-label { display: block; font-size: 14px; font-weight: 650; margin: 14px 0 8px; }
-
-    input, textarea, select {
-      width: 100%;
-      border: 1px solid #E7E7E9;
-      border-radius: 5px;
-      min-height: 46px;
-      padding: 0 13px;
-      font-size: 15px;
-      color: #2b2931;
-      background: #FFFFFF;
-      font-family: inherit;
-    }
-
-    textarea { padding: 12px 13px; min-height: 78px; resize: none; }
-
-    .hint { color: var(--muted); font-size: 13.5px; line-height: 1.35; margin: 4px 0 12px; }
-
-    .settings-list { display: grid; gap: 13px; margin-top: 12px; }
-
-    .setting-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      font-size: 15.5px;
-      min-height: 26px;
-    }
-
-    .setting-row.paywalled {
-      padding: 9px 10px 9px 0;
-      border-radius: 14px;
-      color: #232229;
-    }
-
-    .setting-row.paywalled .setting-copy {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .pro-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      height: 22px;
-      padding: 0 8px;
-      border-radius: 999px;
-      background: #F1F3FF;
-      color: #2F43DE;
-      border: 1px solid #D8DEFF;
-      font-size: 11px;
-      font-weight: 750;
-      letter-spacing: .01em;
-      white-space: nowrap;
-    }
-
-    .pro-badge .pro-diamond-icon {
-      width: 13px;
-      height: 13px;
-      flex: 0 0 auto;
-      display: block;
-    }
-
-    .toggle.locked {
-      background: #EEF0F5;
-      border: 1px solid #D8DADF;
-      cursor: pointer;
-    }
-
-    .toggle.locked:after {
-      left: 4px;
-      right: auto;
-      background: #FFFFFF;
-    }
-
-    .toggle.locked:before {
-      content: "🔒";
-      position: absolute;
-      right: -24px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 13px;
-      opacity: .72;
-    }
-
-    .setting-row.paywalled:hover .pro-badge {
-      background: #E8EBFF;
-      border-color: #A0AFF2;
-    }
-
-    .toggle {
-      width: 39px;
-      height: 24px;
-      border-radius: 999px;
-      background: #59D994;
-      position: relative;
-      flex: 0 0 auto;
-      transition: all .18s ease;
-    }
-
-    .toggle:after {
-      content: "";
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #FFFFFF;
-      right: 4px;
-      top: 4px;
-      box-shadow: 0 1px 3px rgba(0,0,0,.12);
-    }
-
-    .toggle.off {
-      background: #D8DADF;
-    }
-
-    .toggle.off:after {
-      left: 4px;
-      right: auto;
-    }
-    .toggle:after {
-      
-      position: absolute;
-      width: 16px; height: 16px;
-      border-radius: 50%;
-      background: #FFFFFF;
-      right: 4px; top: 4px;
-    }
-    .toggle.off { background: var(--grey-toggle); }
-    .toggle.off:after { left: 4px; right: auto; }
-
-    .primary-wide {
-      width: 100%;
-      height: 52px;
-      border: 0;
-      border-radius: 4px;
-      background: #252428;
-      color: #FFFFFF;
-      font-size: 17px;
-      font-weight: 650;
-      margin-top: 17px;
-      cursor: pointer;
-    }
-
-    .embed-preview {
-      border: 1px solid #E7E7E9;
-      border-radius: 8px;
-      padding: 14px;
-      background: #F9F9FB;
-      margin-top: 13px;
-    }
-
-    .player-preview {
-      background: #111;
-      color: #fff;
-      border-radius: 7px;
-      padding: 13px;
-      display: grid;
-      grid-template-columns: 44px 1fr auto;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .play-circle {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: #FFFFFF;
-      color: #111;
-      display: grid;
-      place-items: center;
-      font-size: 15px;
-    }
-
-    .code-box {
-      border: 1px solid #E7E7E9;
-      border-radius: 5px;
-      background: #F9F9FB;
-      padding: 10px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 12px;
-      color: #4a4850;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-
-    .subtle-divider { height: 1px; background: #E7E7E9; margin: 24px 0 15px; }
-
-    .active-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .active-header h3 { font-size: 16px; font-weight: 650; }
-    .active-header span { font-size: 13px; color: var(--muted); }
-
-    .share-list { display: grid; gap: 12px; }
-
-    .share-item {
-      display: grid;
-      gap: 8px;
-    }
-
-    .share-row {
-      min-height: 64px;
-      border: 1px solid #E7E7E9;
-      border-radius: 999px;
-      display: grid;
-      grid-template-columns: 40px minmax(0, 1fr) auto auto auto;
-      gap: 10px;
-      align-items: center;
-      padding: 9px 10px 9px 12px;
-      background: #FFFFFF;
-      box-shadow: 0 1px 0 rgba(20, 20, 28, .03);
-      transition: border-color .16s ease, background .16s ease, box-shadow .16s ease, transform .16s ease;
-      cursor: pointer;
-    }
-
-    .share-row:hover {
-      border-color: #A0AFF2;
-      background: #F9F9FB;
-      box-shadow: 0 7px 18px rgba(20, 20, 28, .06);
-    }
-
-    .share-item.open .share-row {
-      border-color: #4456E1;
-      background: #FFFFFF;
-      box-shadow: 0 8px 22px rgba(37, 36, 40, .06);
-      position: relative;
-    }
-
-    
-
-    .type-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: #F7F7F8;
-      color: var(--blue);
-      font-size: 17px;
-      display: grid;
-      place-items: center;
-      text-align: center;
-    }
-
-    .share-item.open .type-icon { background: var(--blue); color: #fff; }
-    .share-name { font-size: 15.5px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .share-meta { font-size: 12.5px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .small-btn {
-      height: 36px;
-      border: 1px solid #E7E7E9;
-      background: #FFFFFF;
-      color: #232229;
-      border-radius: 999px;
-      padding: 0 12px;
-      font-size: 13.5px;
-      font-weight: 650;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-
-    .edit-btn {
-      width: 36px;
-      height: 36px;
-      border: 1px solid #E7E7E9;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: #FFFFFF;
-      color: #232229;
-      font-size: 16px;
-      cursor: pointer;
-      transition: transform .16s ease, border-color .16s ease, color .16s ease, background .16s ease;
-    }
-
-    .share-row:hover .edit-btn {
-      border-color: #A0AFF2;
-      color: var(--blue);
-      background: #F9F9FB;
-    }
-
-    .share-item.open .edit-btn { border-color: var(--blue); color: var(--blue); transform: rotate(-8deg); }
-
-    .edit-panel {
-      border: 1px solid #E7E7E9;
-      border-radius: 18px;
-      padding: 18px;
-      margin: 0 4px 4px;
-      background: #FFFFFF;
-      box-shadow: 0 10px 26px rgba(20, 20, 28, .06);
-      display: none;
-    }
-
-    .share-item.open .edit-panel {
-      display: block;
-      animation: panelReveal .18s ease both;
-    }
-
-    .edit-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 18px;
-    }
-
-    .secondary-btn {
-      height: 42px;
-      border: 0;
-      background: transparent;
-      color: #232229;
-      padding: 0 10px;
-      font-size: 15px;
-      font-weight: 650;
-      cursor: pointer;
-    }
-
-    .resend-btn {
-      height: 42px;
-      border: 1px solid #E7E7E9;
-      background: #FFFFFF;
-      color: #232229;
-      border-radius: 999px;
-      padding: 0 16px;
-      font-size: 15px;
-      font-weight: 650;
-      cursor: pointer;
-      margin-right: auto;
-    }
-
-    .save-btn {
-      height: 42px;
-      border: 0;
-      background: #252428;
-      color: #fff;
-      border-radius: 999px;
-      padding: 0 20px;
-      font-size: 15px;
-      font-weight: 650;
-      cursor: pointer;
-    }
-
-    .footer {
-      height: 66px;
-      border-top: 1px solid var(--soft-line);
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      gap: 24px;
-      padding: 0 26px;
-      background: #FFFFFF;
-      flex: 0 0 auto;
-    }
-
-    .footer button {
-      border: 0;
-      background: transparent;
-      color: #1f1e24;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .chat {
-      position: fixed;
-      right: 20px;
-      bottom: 18px;
-      width: 72px;
-      height: 72px;
-      background: #F9F9FB;
-      border-radius: 50%;
-      box-shadow: var(--shadow);
-      display: grid;
-      place-items: center;
-      font-size: 30px;
-      color: #26304f;
-    }
-
-    .badge {
-      position: absolute;
-      top: 3px;
-      right: 2px;
-      background: #ff5a7f;
-      color: #FFFFFF;
-      width: 17px;
-      height: 17px;
-      border-radius: 50%;
-      font-size: 11px;
-      display: grid;
-      place-items: center;
-      border: 1px solid white;
-    }
-
-
-    .choice-card:focus-visible,
-    .share-row:focus-visible,
-    .small-btn:focus-visible,
-    .edit-btn:focus-visible,
-    .primary-wide:focus-visible,
-    .save-btn:focus-visible,
-    .resend-btn:focus-visible {
-      outline: 3px solid var(--primary-bg);
-      outline-offset: 2px;
-    }
-
-    .primary-wide:hover,
-    .save-btn:hover,
-    .btn-top.primary:hover {
-      background: #252428;
-      opacity: .92;
-    }
-
-    .small-btn:hover,
-    .resend-btn:hover,
-    .edit-btn:hover {
-      border-color: var(--primary-line);
-      background: var(--soft-bg);
-    }
-
-
-    .choice-card.open + .mini-panel.show,
-    .share-item.open .edit-panel {
-      border-top-color: #E7E7E9;
-      background: #FFFFFF;
-    }
-
-    .choice-card.open .arrow,
-    .share-item.open .row-chevron {
-      color: #4456E1;
-      font-weight: 700;
-    }
-
-
-    .choice-card.open .choice-title,
-    .share-item.open .share-name {
-      color: #252428;
-    }
-
-    .choice-card.open .choice-icon,
-    .share-item.open .type-icon {
-      color: #4456E1;
-      background: #F9F9FB;
-    }
-
-
-    .bridge-sidebar {
-      background: var(--sidebar);
-      border-right: 1px solid #EEEEF1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 16px 0 14px;
-      color: #777580;
-      overflow: hidden;
-    }
-
-    .workspace-logo {
-      width: 100%;
-      height: 56px;
-      display: grid;
-      place-items: center;
-      margin: 0 0 32px;
-    }
-
-    .workspace-logo img {
-      width: 48px;
-      height: 48px;
-      border-radius: 10px;
-      object-fit: cover;
-      background: #fff;
-      outline: 2px solid #A0AFF2;
-      outline-offset: 2px;
-      transition: outline-color .16s ease, transform .16s ease;
-    }
-
-    .workspace-logo:hover img {
-      outline-color: #D0D2D8;
-      transform: translateY(-1px);
-    }
-
-    .bridge-add {
-      width: 64px;
-      height: 64px;
-      border-radius: 999px;
-      border: 1px solid #D0D2D8;
-      background: #F9F9FB;
-      color: #232229;
-      display: grid;
-      place-items: center;
-      box-shadow: 0 5px 12px rgba(35, 34, 41, .10);
-      cursor: pointer;
-      margin-bottom: 32px;
-      transition: background .16s ease, box-shadow .16s ease, transform .16s ease;
-    }
-
-    .bridge-add:hover {
-      background: #FFFFFF;
-      box-shadow: 0 8px 18px rgba(35, 34, 41, .13);
-      transform: translateY(-1px);
-    }
-
-    .bridge-add:active {
-      transform: translateY(0);
-      box-shadow: 0 3px 8px rgba(35, 34, 41, .12);
-    }
-
-    .bridge-add svg {
-      width: 24px;
-      height: 24px;
-      fill: currentColor;
-    }
-
-    .bridge-nav-items {
-      width: 100%;
-      display: grid;
-      gap: 16px;
-    }
-
-    .bridge-nav-item {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      min-height: 58px;
-      text-decoration: none;
-      color: #777580;
-      font-size: 14px;
-      line-height: 1.2;
-      font-weight: 500;
-      transition: color .16s ease;
-    }
-
-    .bridge-nav-item:hover {
-      color: #232229;
-    }
-
-    .bridge-nav-item.active {
-      color: #232229;
-      font-weight: 650;
-    }
-
-    .bridge-nav-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      color: #9C9AA4;
-      transition: background .16s ease, color .16s ease, transform .16s ease;
-    }
-
-    .bridge-nav-item:hover .bridge-nav-icon {
-      background: #FFFFFF;
-      color: #777580;
-    }
-
-    .bridge-nav-item.active .bridge-nav-icon {
-      background: var(--primary);
-      color: #FFFFFF;
-    }
-
-    .bridge-nav-icon svg {
-      width: 24px;
-      height: 24px;
-      fill: currentColor;
-      stroke: currentColor;
-    }
-
-    .bridge-nav-item:not(.active) .bridge-nav-icon svg {
-      fill: none;
-    }
-
-    .bridge-nav-item.analytics .bridge-nav-icon svg {
-      fill: currentColor;
-      stroke: none;
-    }
-
-    .beta-badge {
-      position: absolute;
-      top: -8px;
-      right: 10px;
-      z-index: 1;
-      border-radius: 999px;
-      border: 1px solid #E7E7E9;
-      background: #FFFFFF;
-      color: #232229;
-      padding: 3px 7px;
-      font-size: 8px;
-      font-weight: 750;
-      line-height: 1;
-      letter-spacing: .02em;
-    }
-
-    .bridge-sidebar-footer {
-      width: calc(100% - 32px);
-      margin-top: auto;
-      padding-top: 16px;
-      border-top: 1px solid #E7E7E9;
-      display: flex;
-      justify-content: center;
-      gap: 18px;
-    }
-
-    .bridge-sidebar-footer a {
-      width: 24px;
-      height: 24px;
-      display: grid;
-      place-items: center;
-      color: #A2A0AA;
-      transition: color .16s ease, transform .16s ease;
-    }
-
-    .bridge-sidebar-footer a:hover {
-      color: #777580;
-      transform: translateY(-1px);
-    }
-
-    .bridge-sidebar-footer svg {
-      width: 20px;
-      height: 20px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.5;
-    }
-
-
-    @media (max-width: 1100px) {
-      .app { grid-template-columns: 84px 1fr; }
-      .share-panel {
-        position: fixed;
-        top: 0; right: 0; bottom: 0;
-        width: min(575px, 100vw);
-        z-index: 3;
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bridge.audio — Project share refonte V5</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'] },
+          colors: {
+            primary: '#4456E1',
+            primaryDark: '#2F43DE',
+            primarySurface: '#E0E3FA',
+            primaryBorder: '#A0AFF2',
+            secondarySurface: '#F7F7F8',
+            whiteBg: '#FFFFFF',
+            neutralSofterBg: '#F9F9FB',
+            neutralSoftBg: '#EFEFF2',
+            neutralBg: '#E7E7E9',
+            tertiaryBorder: '#D8D8DE',
+            secondaryBorder: '#E7E7E9',
+            primaryDarkContent: '#252428',
+            secondaryContent: '#777580',
+            tertiaryContent: '#8F8D96',
+            neutralPrimaryIcon: '#252428',
+            neutralPrimarySoftIcon: '#777580',
+            neutralTertiaryIcon: '#A4A2AA',
+            reverseWhiteIcon: '#FFFFFF',
+            projectsBg: '#F0B44C',
+            libraryBg: '#4456E1',
+            sharedBg: '#8E7AF8',
+            inboxBg: '#59D994',
+            analyticsBg: '#252428'
+          },
+          boxShadow: {
+            mainShadow: '0 1px 2px rgba(20,20,28,.08), 0 8px 24px rgba(20,20,28,.06)',
+            mainShadowHover: '0 2px 4px rgba(20,20,28,.08), 0 12px 30px rgba(20,20,28,.10)',
+            drawer: '-16px 0 36px rgba(20,20,28,.08)'
+          }
+        }
       }
+    }
+  </script>
+<style>
+    * { box-sizing: border-box; }
+    body { margin: 0; overflow: hidden; }
+    .app-shell {
+      display: grid;
+      grid-template-areas:
+        "nav header"
+        "nav main";
+      grid-template-columns: 96px minmax(0, 1fr);
+      grid-template-rows: 72px minmax(0, 1fr);
+      height: 100vh;
+    }
+    .project-layout { grid-template-columns: minmax(0,1fr); }
+    .drawer-open .project-layout { grid-template-columns: minmax(0,1fr) 520px; gap: 12px; }
+    .drawer-open .share-drawer { transform: translateX(0) scale(1); opacity: 1; }
+    .share-drawer {
+      opacity: 0;
+      transform: translateX(24px) scale(.985);
+      transition: transform .28s cubic-bezier(.22,1,.36,1), opacity .18s ease;
+    }
+    .bridge-action {
+      height: 40px;
+      min-height: 40px;
+      border-radius: 6px;
+      padding-inline: 16px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .bridge-icon-action {
+      height: 40px;
+      width: 40px;
+      min-height: 40px;
+      border-radius: 6px;
+    }
+    .drawer-open .drawer-overlay { opacity: 1; pointer-events: auto; }
+    @media (max-width: 1100px) {
+      .app-shell { grid-template-columns: 0 minmax(0,1fr); }
+      nav[style*="grid-area: nav"] { display:none; }
+      .project-layout { grid-template-columns: minmax(0,1fr) !important; }
+      .share-drawer { position: fixed; top:12px; right:12px; bottom:12px; width:min(520px,calc(100vw - 24px)); z-index:50; border-radius:24px; }
     }
   </style>
 </head>
-<body>
-  <div class="app">
-    
-<aside class="bridge-sidebar" aria-label="Main navigation">
-  <div class="workspace-logo" data-tooltip-content="My Label">
-    <img src="https://images.bridge.audio/6it9k4Qas5Ft9fKpBkMTn6CApWkQRALQYlnTwPHPOiE/fill/400/400/ce/0/czM6Ly9iZGdhLXByZC1wdWIvZDAvMWEvZjYvNzUvNmI2ZTA3M2EtZDU5Ny00NjE3LWFiYWUtYTQ1Njc1ZjYxYWQwLg.jpg" alt="Logo of My Label workspace" />
-  </div>
-
-  <button class="bridge-add" aria-label="Create new">
-    <svg viewBox="0 0 20 20" aria-hidden="true">
-      <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"></path>
-    </svg>
-  </button>
-
-  <nav class="bridge-nav-items">
-    <a class="bridge-nav-item active" href="/library/tracks">
-      <span class="bridge-nav-icon">
-        <svg viewBox="0 0 20 20" aria-hidden="true">
-          <path fill-rule="evenodd" d="M17.721 1.599a.75.75 0 0 1 .279.583v11.29a2.25 2.25 0 0 1-1.774 2.2l-2.041.44a2.216 2.216 0 0 1-.938-4.332l2.662-.577a.75.75 0 0 0 .591-.733V6.112l-8 1.73v7.684a2.25 2.25 0 0 1-1.774 2.2l-2.042.44a2.216 2.216 0 1 1-.935-4.331l2.659-.573A.75.75 0 0 0 7 12.529V4.236a.75.75 0 0 1 .591-.733l9.5-2.054a.75.75 0 0 1 .63.15Z" clip-rule="evenodd"></path>
-        </svg>
-      </span>
-      <span>Library</span>
-    </a>
-
-    <a class="bridge-nav-item" href="/projects">
-      <span class="bridge-nav-icon">
-        <svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776"></path>
-        </svg>
-      </span>
-      <span>Projects</span>
-    </a>
-
-    <a class="bridge-nav-item" href="/shared">
-      <span class="bridge-nav-icon">
-        <svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z"></path>
-        </svg>
-      </span>
-      <span>Shared</span>
-    </a>
-
-    <a class="bridge-nav-item" href="/inbox">
-      <span class="bridge-nav-icon">
-        <svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z"></path>
-        </svg>
-      </span>
-      <span>Received</span>
-    </a>
-
-    <a class="bridge-nav-item analytics" href="/analytics">
-      <span class="beta-badge">BETA</span>
-      <span class="bridge-nav-icon">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M2.25 13.5C2.25 8.94365 5.94365 5.25 10.5 5.25C10.9142 5.25 11.25 5.58579 11.25 6V12.75H18C18.4142 12.75 18.75 13.0858 18.75 13.5C18.75 18.0563 15.0563 21.75 10.5 21.75C5.94365 21.75 2.25 18.0563 2.25 13.5Z"></path>
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M12.75 3C12.75 2.58579 13.0858 2.25 13.5 2.25C18.0563 2.25 21.75 5.94365 21.75 10.5C21.75 10.9142 21.4142 11.25 21 11.25H13.5C13.0858 11.25 12.75 10.9142 12.75 10.5V3Z"></path>
-        </svg>
-      </span>
-      <span>Analytics</span>
-    </a>
-  </nav>
-
-  <div class="bridge-sidebar-footer">
-    <a href="/settings/workspace" aria-label="Settings">
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M7.84 1.804A1 1 0 0 1 8.82 1h2.36a1 1 0 0 1 .98.804l.331 1.652a6.993 6.993 0 0 1 1.929 1.115l1.598-.54a1 1 0 0 1 1.186.447l1.18 2.044a1 1 0 0 1-.205 1.251l-1.267 1.113a7.047 7.047 0 0 1 0 2.228l1.267 1.113a1 1 0 0 1 .206 1.25l-1.18 2.045a1 1 0 0 1-1.187.447l-1.598-.54a6.993 6.993 0 0 1-1.929 1.115l-.33 1.652a1 1 0 0 1-.98.804H8.82a1 1 0 0 1-.98-.804l-.331-1.652a6.993 6.993 0 0 1-1.929-1.115l-1.598.54a1 1 0 0 1-1.186-.447l-1.18-2.044a1 1 0 0 1 .205-1.251l1.267-1.114a7.05 7.05 0 0 1 0-2.227L1.821 7.773a1 1 0 0 1-.206-1.25l1.18-2.045a1 1 0 0 1 1.187-.447l1.598.54A6.992 6.992 0 0 1 7.51 3.456l.33-1.652ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"></path></svg>
-    </a>
-    <a href="/settings/members?open=invite" aria-label="Invite">
-      <svg viewBox="0 0 18 17" aria-hidden="true"><path d="M14 4.75V7.25M14 7.25V9.75M14 7.25H16.5M14 7.25H11.5M9.625 3.8125C9.625 5.3658 8.3658 6.625 6.8125 6.625C5.2592 6.625 4 5.3658 4 3.8125C4 2.2592 5.2592 1 6.8125 1C8.3658 1 9.625 2.2592 9.625 3.8125ZM1.50077 14.5286C1.50026 14.4983 1.5 14.4679 1.5 14.4375C1.5 11.5035 3.87849 9.125 6.8125 9.125C9.74651 9.125 12.125 11.5035 12.125 14.4375V14.4396C12.125 14.4693 12.1247 14.499 12.1242 14.5286C10.5728 15.4627 8.7554 16 6.8125 16C4.8696 16 3.0522 15.4627 1.50077 14.5286Z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-    </a>
-  </div>
+<body class="bg-secondarySurface font-sans text-primaryDarkContent drawer-open">
+<div class="app-shell">
+<!-- Bridge header -->
+<header class="flex w-full" style="grid-area: header;">
+<div class="z-20 flex h-14 w-full justify-end bg-whiteBg px-6 md:mr-3 md:mt-3 md:h-auto md:rounded-3xl md:rounded-b-none">
+<div class="flex shrink items-center md:hidden">
+<button aria-label="Open navigation" class="flex h-10 w-10 items-center justify-center p-2">
+<svg class="h-5 w-5 stroke-neutralPrimaryIcon" fill="none" stroke-width="1.5" viewbox="0 0 24 24"><path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+<div class="mr-2 min-h-15 w-full">
+<div class="flex h-full w-full items-center justify-between">
+<div class="flex max-w-xl items-center text-sm text-secondaryContent">
+<a class="mr-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-s bg-projectsBg text-white" draggable="false" href="/projects">
+<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><path d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</a>
+<a class="overflow-hidden overflow-ellipsis whitespace-nowrap text-primaryDark hover:text-primary hover:underline" draggable="false" href="/projects">Projects</a>
+<span class="mx-1">/</span>
+<span class="overflow-hidden overflow-ellipsis whitespace-nowrap font-semibold text-primaryDarkContent" style="min-width:8em;">TEST ALTER-K</span>
+</div>
+</div>
+</div>
+<div class="flex items-start pt-2">
+<button aria-label="What's new?" class="mr-1 hidden h-10 w-10 flex-shrink-0 items-center justify-center rounded hover:bg-neutralSoftBg md:flex">
+<svg class="w-5 fill-neutralPrimarySoftIcon" fill="currentColor" viewbox="0 0 24 24"><path d="M16.881 4.345A23.112 23.112 0 0 1 8.25 6H7.5a5.25 5.25 0 0 0-.88 10.427 21.593 21.593 0 0 0 1.378 3.94c.464 1.004 1.674 1.32 2.582.796l.657-.379c.88-.508 1.165-1.593.772-2.468a17.116 17.116 0 0 1-.628-1.607c1.918.258 3.76.75 5.5 1.446A21.727 21.727 0 0 0 18 11.25c0-2.414-.393-4.735-1.119-6.905Zm1.379-.605a23.22 23.22 0 0 1 1.24 7.51 23.22 23.22 0 0 1-1.41 7.992.75.75 0 1 0 1.409.516 24.555 24.555 0 0 0 1.415-6.43 2.992 2.992 0 0 0 .836-2.078 2.99 2.99 0 0 0-.836-2.078 24.65 24.65 0 0 0-1.415-6.43.75.75 0 1 0-1.409.516c.059.16.116.321.17.483Z"></path></svg>
+</button>
+<a aria-label="Help center" class="mr-1 hidden h-10 w-10 items-center justify-center rounded px-4 text-neutralPrimarySoftIcon hover:bg-neutralSoftBg md:flex" href="https://help.bridge.audio/resources" rel="noopener noreferrer" target="_blank">
+<svg class="h-5 w-5 fill-current" viewbox="0 0 24 24"><path clip-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm11.378-3.917c-.89-.777-2.366-.777-3.255 0a.75.75 0 0 1-.988-1.129c1.454-1.272 3.776-1.272 5.23 0 1.513 1.324 1.513 3.518 0 4.842a3.75 3.75 0 0 1-.837.552c-.676.328-1.028.774-1.028 1.152v.75a.75.75 0 0 1-1.5 0v-.75c0-1.279 1.06-2.107 1.875-2.502.182-.088.351-.199.503-.331.83-.727.83-1.857 0-2.584ZM12 18a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" fill-rule="evenodd"></path></svg>
+</a>
+<button aria-label="Notifications" class="mr-2 flex h-10 w-10 items-center justify-center rounded hover:bg-neutralSoftBg">
+<svg class="w-5 fill-neutralPrimarySoftIcon" fill="currentColor" viewbox="0 0 24 24"><path d="M20 17h2v2H2v-2h2v-7a8 8 0 1 1 16 0v7ZM9 21h6v2H9v-2Z"></path></svg>
+</button>
+<img alt="CS" class="h-10 w-10 shrink-0 rounded-full bg-secondarySurface object-cover" draggable="false" src="https://images.bridge.audio/EjJAjuZ4GBlkz4ws4q6uJf-gNv3PbKHBNQiO5Dnu-R0/rs:fit:400:400:1/g:sm/q:80/czM6Ly9iZGdhLXByZC1wdWIvODIvODMvMGMvOWEvMjY2YjJmMzktN2M4NS00NTViLWFkYzItYTFmZTlhMGM4MzgyLg.jpg"/>
+</div>
+</div>
+</header>
+<!-- Bridge left navigation -->
+<nav class="hidden flex-col md:flex" style="grid-area: nav;">
+<div class="shrink-0">
+<div class="my-4 h-14 w-full cursor-pointer px-4">
+<div class="flex items-center justify-center">
+<img alt="Logo of My Label workspace" class="h-12 w-12 shrink-0 rounded-lg bg-whiteBg object-cover outline outline-2 outline-offset-2 outline-primaryBorder hover:outline-tertiaryBorder" draggable="false" src="https://images.bridge.audio/6it9k4Qas5Ft9fKpBkMTn6CApWkQRALQYlnTwPHPOiE/fill/400/400/ce/0/czM6Ly9iZGdhLXByZC1wdWIvZDAvMWEvZjYvNzUvNmI2ZTA3M2EtZDU5Ny00NjE3LWFiYWUtYTQ1Njc1ZjYxYWQwLg.jpg"/>
+</div>
+</div>
+</div>
+<div class="grow overflow-auto">
+<div class="relative mt-8 box-border w-full text-base">
+<div class="mb-8 flex justify-center">
+<button aria-label="Create" class="flex h-16 w-16 cursor-pointer items-center justify-center rounded-full border border-tertiaryBorder bg-neutralSofterBg shadow-mainShadow hover:bg-neutralBg hover:shadow-mainShadowHover">
+<svg class="h-6 w-6 fill-neutralPrimaryIcon" viewbox="0 0 20 20"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"></path></svg>
+</button>
+</div>
+<div class="mb-4">
+<a class="relative mb-4 flex h-auto flex-col items-center text-sm text-tertiaryContent no-underline" draggable="false" href="/library/tracks">
+<div class="item-center relative box-content flex h-6 w-6 justify-center rounded-lg p-2"><svg class="h-6 w-6 stroke-neutralPrimarySoftIcon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="m9 9 10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.66a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 0 1-.99-3.467l2.31-.66A2.25 2.25 0 0 0 9 15.553Z" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+<div class="mt-1 flex-grow">Library</div>
+</a>
+<a class="relative mb-4 flex h-auto flex-col items-center text-sm font-semibold text-primaryDarkContent no-underline" draggable="false" href="/projects">
+<div class="item-center relative box-content flex h-6 w-6 justify-center rounded-lg bg-projectsBg p-2"><svg class="h-6 w-6 fill-none stroke-reverseWhiteIcon" stroke-width="1.5" viewbox="0 0 24 24"><path d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+<div class="mt-1 flex-grow">Projects</div>
+</a>
+<a class="relative mb-4 flex h-auto flex-col items-center text-sm text-tertiaryContent no-underline" draggable="false" href="/shared">
+<div class="item-center relative box-content flex h-6 w-6 justify-center rounded-lg p-2"><svg class="h-6 w-6 fill-none stroke-neutralPrimarySoftIcon" stroke-width="1.5" viewbox="0 0 24 24"><path d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+<div class="mt-1 flex-grow">Shared</div>
+</a>
+<a class="relative mb-4 flex h-auto flex-col items-center text-sm text-tertiaryContent no-underline" draggable="false" href="/inbox">
+<div class="item-center relative box-content flex h-6 w-6 justify-center rounded-lg p-2"><svg class="h-6 w-6 fill-none stroke-neutralPrimarySoftIcon" stroke-width="1.5" viewbox="0 0 24 24"><path d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859M2.25 13.838V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+<div class="mt-1 flex-grow">Received</div>
+</a>
+<a class="relative mb-4 flex h-auto flex-col items-center text-sm text-tertiaryContent no-underline" draggable="false" href="/analytics">
+<span class="absolute -top-2 right-1 z-10 rounded-full border border-secondaryBorder bg-primarySurface px-2 py-1 text-[8px] font-semibold leading-none text-primaryDarkContent">BETA</span>
+<div class="item-center relative box-content flex h-6 w-6 justify-center rounded-lg p-2"><svg class="h-6 w-6 fill-neutralPrimarySoftIcon" viewbox="0 0 24 24"><path clip-rule="evenodd" d="M2.25 13.5C2.25 8.94365 5.94365 5.25 10.5 5.25C10.9142 5.25 11.25 5.58579 11.25 6V12.75H18C18.4142 12.75 18.75 13.0858 18.75 13.5C18.75 18.0563 15.0563 21.75 10.5 21.75C5.94365 21.75 2.25 18.0563 2.25 13.5Z" fill-rule="evenodd"></path><path clip-rule="evenodd" d="M12.75 3C12.75 2.58579 13.0858 2.25 13.5 2.25C18.0563 2.25 21.75 5.94365 21.75 10.5C21.75 10.9142 21.4142 11.25 21 11.25H13.5C13.0858 11.25 12.75 10.9142 12.75 10.5V3Z" fill-rule="evenodd"></path></svg></div>
+<div class="mt-1 flex-grow">Analytics</div>
+</a>
+</div>
+</div>
+</div>
+<hr class="mx-5"/>
+<div class="m-4 flex justify-around gap-2">
+<a aria-label="Settings" href="/settings/workspace"><svg class="h-5 w-5 fill-none stroke-neutralTertiaryIcon stroke-[1.5] hover:fill-neutralTertiaryIcon" viewbox="0 0 20 20"><path d="M7.84 1.804A1 1 0 0 1 8.82 1h2.36a1 1 0 0 1 .98.804l.331 1.652a6.993 6.993 0 0 1 1.929 1.115l1.598-.54a1 1 0 0 1 1.186.447l1.18 2.044a1 1 0 0 1-.205 1.251l-1.267 1.113a7.047 7.047 0 0 1 0 2.228l1.267 1.113a1 1 0 0 1 .206 1.25l-1.18 2.045a1 1 0 0 1-1.187.447l-1.598-.54a6.993 6.993 0 0 1-1.929 1.115l-.33 1.652a1 1 0 0 1-.98.804H8.82a1 1 0 0 1-.98-.804l-.331-1.652a6.993 6.993 0 0 1-1.929-1.115l-1.598.54a1 1 0 0 1-1.186-.447l-1.18-2.044a1 1 0 0 1 .205-1.251l1.267-1.114a7.05 7.05 0 0 1 0-2.227L1.821 7.773a1 1 0 0 1-.206-1.25l1.18-2.045a1 1 0 0 1 1.187-.447l1.598.54A6.992 6.992 0 0 1 7.51 3.456l.33-1.652ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill-rule="evenodd"></path></svg></a>
+<a aria-label="Invite" href="/settings/members?open=invite"><svg class="h-5 w-5 fill-none stroke-neutralTertiaryIcon hover:fill-neutralTertiaryIcon" stroke="currentColor" stroke-width="1.5" viewbox="0 0 18 17"><path d="M14 4.75V7.25M14 7.25V9.75M14 7.25H16.5M14 7.25H11.5M9.625 3.8125C9.625 5.3658 8.3658 6.625 6.8125 6.625C5.2592 6.625 4 5.3658 4 3.8125C4 2.2592 5.2592 1 6.8125 1C8.3658 1 9.625 2.2592 9.625 3.8125ZM1.50077 14.5286C1.50026 14.4983 1.5 14.4679 1.5 14.4375C1.5 11.5035 3.87849 9.125 6.8125 9.125C9.74651 9.125 12.125 11.5035 12.125 14.4375V14.4396C12.125 14.4693 12.1247 14.499 12.1242 14.5286C10.5728 15.4627 8.7554 16 6.8125 16C4.8696 16 3.0522 15.4627 1.50077 14.5286Z" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+</div>
+</nav>
+<main class="min-h-0 bg-secondarySurface pr-3" style="grid-area: main;">
+<div class="project-layout grid h-full min-h-0 bg-secondarySurface transition-[grid-template-columns] duration-200">
+<section class="min-w-0 overflow-y-auto rounded-3xl rounded-t-none bg-whiteBg px-8 pb-10 pt-5">
+<div class="mb-5 flex items-center justify-between gap-4">
+<div>
+<div class="mb-1 text-xs font-semibold uppercase tracking-[.16em] text-secondaryContent">Project</div>
+<h1 class="text-[30px] font-semibold leading-tight tracking-[-.03em] text-primaryDarkContent">TEST ALTER-K</h1>
+<p class="mt-1 text-sm text-secondaryContent">Updated 2 days ago · Clement Souchier</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="inline-flex h-10 items-center gap-2 rounded-md bg-primaryDarkContent px-4 text-sm font-semibold text-white hover:opacity-90" id="openShare">
+<svg class="h-4 w-4 fill-none stroke-current" stroke-width="1.8" viewbox="0 0 24 24"><path d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                Share
+              </button>
+<button class="inline-flex h-10 items-center gap-2 rounded-md border border-secondaryBorder bg-whiteBg px-4 text-sm font-semibold text-primaryDarkContent hover:bg-neutralSofterBg">
+<svg class="h-4 w-4 fill-none stroke-current" stroke-width="1.8" viewbox="0 0 24 24"><path d="M3 12h6l2 3 4-7 2 4h4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                Activity
+              </button>
+</div>
+</div>
+<div class="mb-6 overflow-hidden rounded-2xl bg-primaryDarkContent">
+<div class="flex h-[300px] items-center justify-center bg-[radial-gradient(circle_at_50%_45%,#34333a_0,#111014_60%)]">
+<div class="text-[132px] font-black leading-none tracking-[-.14em] text-white">K</div>
+</div>
+</div>
+<button class="mb-7 flex min-h-12 w-full items-center rounded-xl border border-dashed border-secondaryBorder bg-neutralSofterBg px-4 text-left text-sm text-secondaryContent hover:border-primaryBorder hover:bg-whiteBg">
+            Click to add a description...
+          </button>
+<div class="overflow-hidden rounded-2xl border border-secondaryBorder bg-whiteBg">
+<div class="grid grid-cols-[44px_minmax(0,1fr)_180px] items-center border-b border-secondaryBorder bg-neutralSofterBg px-4 py-3 text-sm font-semibold text-primaryDarkContent">
+<span class="h-4 w-4 rounded border border-tertiaryBorder bg-whiteBg"></span>
+<span>Projects (2)</span>
+<span>Last update</span>
+</div>
+<div class="grid grid-cols-[44px_minmax(0,1fr)_180px] items-center border-b border-secondaryBorder px-4 py-3 text-sm hover:bg-neutralSofterBg">
+<span class="h-4 w-4 rounded border border-tertiaryBorder"></span>
+<div class="flex min-w-0 items-center gap-3">
+<span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-projectsBg/20 text-projectsBg">
+<svg class="h-5 w-5 fill-none stroke-current" stroke-width="1.6" viewbox="0 0 24 24"><path d="M3.75 9.75h16.5m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</span>
+<span class="truncate font-medium">ALTERK - Test la - 22 04 2026</span>
+</div>
+<div class="text-sm">28 avril 2026<br/><span class="text-xs text-secondaryContent">Clement Souchier</span></div>
+</div>
+<div class="grid grid-cols-[44px_minmax(0,1fr)_180px] items-center px-4 py-3 text-sm hover:bg-neutralSofterBg">
+<span class="h-4 w-4 rounded border border-tertiaryBorder"></span>
+<div class="flex min-w-0 items-center gap-3">
+<span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-projectsBg/20 text-projectsBg">
+<svg class="h-5 w-5 fill-none stroke-current" stroke-width="1.6" viewbox="0 0 24 24"><path d="M3.75 9.75h16.5m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</span>
+<span class="truncate font-medium">LACREME - Test Api - 22 04 2026</span>
+</div>
+<div class="text-sm">28 avril 2026<br/><span class="text-xs text-secondaryContent">Clement Souchier</span></div>
+</div>
+</div>
+</section>
+<aside class="share-drawer mr-3 mb-3 flex min-h-0 min-w-0 flex-col overflow-hidden rounded-3xl bg-whiteBg">
+<div class="flex h-16 shrink-0 items-center justify-between border-b border-secondaryBorder px-5">
+<button aria-label="Back" class="flex h-10 w-10 items-center justify-center rounded-md hover:bg-neutralSofterBg">
+<svg class="h-5 w-5 fill-none stroke-neutralPrimaryIcon" stroke-width="1.8" viewbox="0 0 24 24"><path d="M15.75 19.5 8.25 12l7.5-7.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+<div class="min-w-0 px-3 text-center text-base font-semibold text-primaryDarkContent">
+<div class="truncate">Share project TEST ALTER-K</div>
+</div>
+<button aria-label="Close" class="flex h-10 w-10 items-center justify-center rounded-md hover:bg-neutralSofterBg" id="closeShare">
+<svg class="h-5 w-5 fill-none stroke-neutralPrimaryIcon" stroke-width="1.8" viewbox="0 0 24 24"><path d="M6 18 18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+<div class="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+<p class="mb-5 rounded-2xl bg-neutralSofterBg p-4 text-sm leading-6 text-secondaryContent">Share this project with a link or invite specific people by email.</p>
+<div class="mb-3 text-sm font-semibold text-primaryDarkContent">How do you want to share?</div>
+<div class="space-y-3">
+<div>
+<button aria-expanded="false" class="choice-card flex w-full items-center gap-3 rounded-xl border border-secondaryBorder bg-whiteBg p-3 text-left hover:bg-neutralSofterBg" data-panel="linkPanel">
+<span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primarySurface text-primaryDark"><svg class="h-5 w-5 fill-none stroke-current" stroke-width="1.8" viewbox="0 0 24 24"><path d="M13.19 8.688a4.5 4.5 0 0 1 6.364 6.364l-1.768 1.768a4.5 4.5 0 0 1-6.364-6.364M10.81 15.312a4.5 4.5 0 0 1-6.364-6.364L6.214 7.18a4.5 4.5 0 0 1 6.364 6.364" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+<span class="min-w-0 flex-1"><span class="block text-sm font-semibold">Share by link</span><span class="block text-xs leading-5 text-secondaryContent">Create a shareable project link for external access.</span></span>
+<svg class="chevron h-5 w-5 fill-none stroke-secondaryContent transition-transform" stroke-width="1.8" viewbox="0 0 24 24"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+<div class="mini-panel mt-2 hidden rounded-[24px] border border-secondaryBorder bg-whiteBg p-4" id="linkPanel">
+<label class="mb-2 block text-sm font-semibold">Link name</label>
+<input class="h-10 w-full rounded-xl border border-secondaryBorder px-3 text-sm outline-none focus:border-primaryBorder" value="Alter K all"/>
+<div class="mt-4 space-y-3">
+<div class="flex items-center justify-between text-sm"><span>Streaming</span><span class="toggle on"></span></div>
+<div class="flex items-center justify-between text-sm"><span>MP3 download</span><span class="toggle on"></span></div>
+<div class="flex items-center justify-between text-sm"><span>HQ download (WAV, FLAC...)</span><span class="toggle on"></span></div>
+<div aria-disabled="true" class="premium-option flex items-center justify-between gap-4 text-sm" data-upgrade-trigger="true" role="button" tabindex="0" title="Track information is included in Bridge Pro">
+<span class="premium-option-label"><span>Track information</span></span>
+<span class="premium-control"><span aria-hidden="true" class="toggle locked-toggle"></span><span class="premium-pro-badge" aria-hidden="true"><svg aria-hidden="true" class="premium-pro-diamond" fill="none" viewBox="0 0 21 20" xmlns="http://www.w3.org/2000/svg"><path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="currentColor"></path></svg><span>Pro</span></span></span>
+</div>
+<div aria-disabled="true" class="premium-option flex items-center justify-between gap-4 text-sm" data-upgrade-trigger="true" role="button" tabindex="0" title="Password protection is included in Bridge Pro">
+<span class="premium-option-label"><span>Password protection</span></span>
+<span class="premium-control"><span aria-hidden="true" class="toggle locked-toggle"></span><span class="premium-pro-badge" aria-hidden="true"><svg aria-hidden="true" class="premium-pro-diamond" fill="none" viewBox="0 0 21 20" xmlns="http://www.w3.org/2000/svg"><path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="currentColor"></path></svg><span>Pro</span></span></span>
+</div>
+</div>
+<button class="bridge-action mt-5 w-full bg-primaryDarkContent text-white hover:opacity-90">Create link</button>
+</div>
+</div>
+<div>
+<button aria-expanded="false" class="choice-card flex w-full items-center gap-3 rounded-xl border border-secondaryBorder bg-whiteBg p-3 text-left hover:bg-neutralSofterBg" data-panel="emailPanel">
+<span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primarySurface text-primaryDark"><svg class="h-5 w-5 fill-none stroke-current" stroke-width="1.8" viewbox="0 0 24 24"><path d="M21.75 6.75v10.5A2.25 2.25 0 0 1 19.5 19.5h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0-9.75 6-9.75-6" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+<span class="min-w-0 flex-1"><span class="block text-sm font-semibold">Send by email</span><span class="block text-xs leading-5 text-secondaryContent">Send access directly to selected recipients.</span></span>
+<svg class="chevron h-5 w-5 fill-none stroke-secondaryContent transition-transform" stroke-width="1.8" viewbox="0 0 24 24"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+<div class="mini-panel mt-2 hidden rounded-[24px] border border-secondaryBorder bg-whiteBg p-4" id="emailPanel">
+<label class="mb-2 block text-sm font-semibold">Recipients</label>
+<input class="h-10 w-full rounded-xl border border-secondaryBorder px-3 text-sm outline-none focus:border-primaryBorder" placeholder="Enter email addresses, separated by commas"/>
+<label class="mb-2 mt-4 block text-sm font-semibold">Message</label>
+<textarea class="min-h-20 w-full resize-none rounded-xl border border-secondaryBorder p-3 text-sm outline-none focus:border-primaryBorder" placeholder="Add a short message"></textarea>
+<div class="mt-4 space-y-3 rounded-[22px] bg-neutralSofterBg p-3">
+<div class="flex items-center justify-between gap-4 text-sm"><span>Streaming</span><span class="toggle on"></span></div>
+<div class="flex items-center justify-between gap-4 text-sm"><span>MP3 download</span><span class="toggle on"></span></div>
+<div class="flex items-center justify-between gap-4 text-sm"><span>HQ download (WAV, FLAC...)</span><span class="toggle on"></span></div>
+<div aria-disabled="true" class="premium-option flex items-center justify-between gap-4 text-sm" data-upgrade-trigger="true" role="button" tabindex="0" title="Track information is included in Bridge Pro">
+<span class="premium-option-label"><span>Track information</span></span>
+<span class="premium-control"><span aria-hidden="true" class="toggle locked-toggle"></span><span class="premium-pro-badge" aria-hidden="true"><svg aria-hidden="true" class="premium-pro-diamond" fill="none" viewBox="0 0 21 20" xmlns="http://www.w3.org/2000/svg"><path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="currentColor"></path></svg><span>Pro</span></span></span>
+</div>
+<div aria-disabled="true" class="premium-option flex items-center justify-between gap-4 text-sm" data-upgrade-trigger="true" role="button" tabindex="0" title="Password protection is included in Bridge Pro">
+<span class="premium-option-label"><span>Password protection</span></span>
+<span class="premium-control"><span aria-hidden="true" class="toggle locked-toggle"></span><span class="premium-pro-badge" aria-hidden="true"><svg aria-hidden="true" class="premium-pro-diamond" fill="none" viewBox="0 0 21 20" xmlns="http://www.w3.org/2000/svg"><path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="currentColor"></path></svg><span>Pro</span></span></span>
+</div>
+</div>
+<button class="bridge-action mt-5 w-full bg-primaryDarkContent text-white hover:opacity-90">Send invites</button>
+</div>
+</div>
+</div>
+<div class="my-6 h-px bg-secondaryBorder"></div>
+<div class="mb-3 flex items-center justify-between">
+<h2 class="text-sm font-semibold">Active shares</h2>
+<span class="rounded-full bg-neutralSofterBg px-2.5 py-1 text-xs font-medium text-secondaryContent">3 active</span>
+</div>
+<div class="space-y-3">
+<article class="share-item rounded-xl border border-secondaryBorder bg-whiteBg p-3 transition hover:border-primaryBorder hover:bg-neutralSofterBg">
+<button aria-expanded="false" class="share-row flex w-full items-center gap-3 text-left" type="button">
+<span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primarySurface text-primaryDark"><svg class="h-5 w-5 fill-none stroke-current" stroke-width="1.8" viewbox="0 0 24 24"><path d="M13.19 8.688a4.5 4.5 0 0 1 6.364 6.364l-1.768 1.768a4.5 4.5 0 0 1-6.364-6.364" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10.81 15.312a4.5 4.5 0 0 1-6.364-6.364L6.214 7.18a4.5 4.5 0 0 1 6.364 6.364" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+<span class="min-w-0 flex-1"><span class="block truncate text-sm font-semibold">Lien Alter k all</span><span class="block truncate text-xs text-secondaryContent">Share link · Streaming, downloads, metadata</span></span>
+<span class="hidden h-9 items-center rounded-md border border-secondaryBorder px-3 text-xs font-semibold hover:bg-whiteBg sm:flex">Copy link</span>
+<span aria-label="Edit share settings" class="flex h-9 w-9 items-center justify-center rounded-md border border-secondaryBorder bg-whiteBg text-neutralPrimarySoftIcon hover:text-primaryDark"><svg class="h-4 w-4 fill-none stroke-current" stroke-width="1.7" viewbox="0 0 24 24"><path d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L8.582 18.07a4.5 4.5 0 0 1-1.897 1.13L4 20l.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.862 4.487Z" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+<span class="toggle on"></span>
+</button>
+<div class="share-edit mt-3 hidden rounded-[24px] border border-secondaryBorder bg-whiteBg p-4">
+<label class="mb-2 block text-sm font-semibold">Link name</label>
+<input class="h-10 w-full rounded-xl border border-secondaryBorder px-3 text-sm outline-none focus:border-primaryBorder" value="Lien Alter k all"/>
+<div class="mt-4 space-y-3 rounded-[22px] bg-neutralSofterBg p-3">
+<div class="flex items-center justify-between gap-4 text-sm"><span>Streaming</span><span class="toggle on"></span></div>
+<div class="flex items-center justify-between gap-4 text-sm"><span>MP3 download</span><span class="toggle on"></span></div>
+<div class="flex items-center justify-between gap-4 text-sm"><span>HQ download (WAV, FLAC...)</span><span class="toggle on"></span></div>
+<div aria-disabled="true" class="premium-option flex items-center justify-between gap-4 text-sm" data-upgrade-trigger="true" role="button" tabindex="0" title="Track information is included in Bridge Pro">
+<span class="premium-option-label"><span>Track information</span></span>
+<span class="premium-control"><span aria-hidden="true" class="toggle locked-toggle"></span><span class="premium-pro-badge" aria-hidden="true"><svg aria-hidden="true" class="premium-pro-diamond" fill="none" viewBox="0 0 21 20" xmlns="http://www.w3.org/2000/svg"><path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="currentColor"></path></svg><span>Pro</span></span></span>
+</div>
+<div class="flex items-center justify-between gap-4 text-sm"><span>Media &amp; documents</span><span class="toggle on"></span></div>
+<div class="flex items-center justify-between gap-4 text-sm"><span>Project description</span><span class="toggle on"></span></div>
+<div aria-disabled="true" class="premium-option flex items-center justify-between gap-4 text-sm" data-upgrade-trigger="true" role="button" tabindex="0" title="Password protection is included in Bridge Pro">
+<span class="premium-option-label"><span>Password protection</span></span>
+<span class="premium-control"><span aria-hidden="true" class="toggle locked-toggle"></span><span class="premium-pro-badge" aria-hidden="true"><svg aria-hidden="true" class="premium-pro-diamond" fill="none" viewBox="0 0 21 20" xmlns="http://www.w3.org/2000/svg"><path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="currentColor"></path></svg><span>Pro</span></span></span>
+</div>
+</div>
+<div class="mt-4 flex justify-end gap-2"><button class="close-edit h-9 rounded-md px-3 text-sm font-semibold hover:bg-neutralSofterBg">Cancel</button><button class="h-9 rounded-md bg-primaryDarkContent px-4 text-sm font-semibold text-white hover:opacity-90">Save</button></div>
+</div>
+</article>
+<article class="share-item rounded-xl border border-secondaryBorder bg-whiteBg p-3 transition hover:border-primaryBorder hover:bg-neutralSofterBg">
+<button aria-expanded="false" class="share-row flex w-full items-center gap-3 text-left" type="button">
+<span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-neutralSofterBg text-primaryDark"><svg class="h-5 w-5 fill-none stroke-current" stroke-width="1.8" viewbox="0 0 24 24"><path d="M21.75 6.75v10.5A2.25 2.25 0 0 1 19.5 19.5h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0-9.75 6-9.75-6" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+<span class="min-w-0 flex-1"><span class="block truncate text-sm font-semibold">david.baudart@la-cre.me</span><span class="block truncate text-xs text-secondaryContent">Email invite · Active</span></span>
+<span class="hidden h-9 items-center rounded-md border border-secondaryBorder px-3 text-xs font-semibold hover:bg-whiteBg sm:flex">Copy link</span>
+<span aria-label="Edit invite settings" class="flex h-9 w-9 items-center justify-center rounded-md border border-secondaryBorder bg-whiteBg text-neutralPrimarySoftIcon hover:text-primaryDark"><svg class="h-4 w-4 fill-none stroke-current" stroke-width="1.7" viewbox="0 0 24 24"><path d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L8.582 18.07a4.5 4.5 0 0 1-1.897 1.13L4 20l.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.862 4.487Z" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+<span class="toggle on"></span>
+</button>
+<div class="share-edit mt-3 hidden rounded-[24px] border border-secondaryBorder bg-whiteBg p-4">
+<label class="mb-2 block text-sm font-semibold">Recipient</label>
+<input class="h-10 w-full rounded-xl border border-secondaryBorder px-3 text-sm outline-none focus:border-primaryBorder" value="david.baudart@la-cre.me"/>
+<label class="mb-2 mt-4 block text-sm font-semibold">Message</label>
+<textarea class="min-h-20 w-full resize-none rounded-xl border border-secondaryBorder p-3 text-sm outline-none focus:border-primaryBorder">Here is the project link.</textarea>
+<div class="mt-4 space-y-3 rounded-[22px] bg-neutralSofterBg p-3">
+<div class="flex items-center justify-between gap-4 text-sm"><span>Streaming</span><span class="toggle on"></span></div>
+<div class="flex items-center justify-between gap-4 text-sm"><span>MP3 download</span><span class="toggle on"></span></div>
+<div class="flex items-center justify-between gap-4 text-sm"><span>HQ download (WAV, FLAC...)</span><span class="toggle on"></span></div>
+<div aria-disabled="true" class="premium-option flex items-center justify-between gap-4 text-sm" data-upgrade-trigger="true" role="button" tabindex="0" title="Track information is included in Bridge Pro">
+<span class="premium-option-label"><span>Track information</span></span>
+<span class="premium-control"><span aria-hidden="true" class="toggle locked-toggle"></span><span class="premium-pro-badge" aria-hidden="true"><svg aria-hidden="true" class="premium-pro-diamond" fill="none" viewBox="0 0 21 20" xmlns="http://www.w3.org/2000/svg"><path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="currentColor"></path></svg><span>Pro</span></span></span>
+</div>
+<div aria-disabled="true" class="premium-option flex items-center justify-between gap-4 text-sm" data-upgrade-trigger="true" role="button" tabindex="0" title="Password protection is included in Bridge Pro">
+<span class="premium-option-label"><span>Password protection</span></span>
+<span class="premium-control"><span aria-hidden="true" class="toggle locked-toggle"></span><span class="premium-pro-badge" aria-hidden="true"><svg aria-hidden="true" class="premium-pro-diamond" fill="none" viewBox="0 0 21 20" xmlns="http://www.w3.org/2000/svg"><path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="currentColor"></path></svg><span>Pro</span></span></span>
+</div>
+</div>
+<div class="mt-4 flex justify-end gap-2"><button class="h-9 rounded-md border border-secondaryBorder px-3 text-sm font-semibold hover:bg-neutralSofterBg">Resend email</button><button class="close-edit h-9 rounded-md px-3 text-sm font-semibold hover:bg-neutralSofterBg">Cancel</button><button class="h-9 rounded-md bg-primaryDarkContent px-4 text-sm font-semibold text-white hover:opacity-90">Save</button></div>
+</div>
+</article>
+<article class="share-item rounded-xl border border-secondaryBorder bg-whiteBg p-3 transition hover:border-primaryBorder hover:bg-neutralSofterBg">
+<button aria-expanded="false" class="share-row flex w-full items-center gap-3 text-left" type="button">
+<span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-neutralSofterBg text-primaryDark"><svg class="h-5 w-5 fill-none stroke-current" stroke-width="1.8" viewbox="0 0 24 24"><path d="M21.75 6.75v10.5A2.25 2.25 0 0 1 19.5 19.5h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0-9.75 6-9.75-6" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+<span class="min-w-0 flex-1"><span class="block truncate text-sm font-semibold">clement+light@bridge.audio</span><span class="block truncate text-xs text-secondaryContent">Email invite · Active</span></span>
+<span class="hidden h-9 items-center rounded-md border border-secondaryBorder px-3 text-xs font-semibold hover:bg-whiteBg sm:flex">Copy link</span>
+<span aria-label="Edit invite settings" class="flex h-9 w-9 items-center justify-center rounded-md border border-secondaryBorder bg-whiteBg text-neutralPrimarySoftIcon hover:text-primaryDark"><svg class="h-4 w-4 fill-none stroke-current" stroke-width="1.7" viewbox="0 0 24 24"><path d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L8.582 18.07a4.5 4.5 0 0 1-1.897 1.13L4 20l.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.862 4.487Z" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+<span class="toggle on"></span>
+</button>
+<div class="share-edit mt-3 hidden rounded-[24px] border border-secondaryBorder bg-whiteBg p-4">
+<label class="mb-2 block text-sm font-semibold">Recipient</label>
+<input class="h-10 w-full rounded-xl border border-secondaryBorder px-3 text-sm outline-none focus:border-primaryBorder" value="clement+light@bridge.audio"/>
+<label class="mb-2 mt-4 block text-sm font-semibold">Message</label>
+<textarea class="min-h-20 w-full resize-none rounded-xl border border-secondaryBorder p-3 text-sm outline-none focus:border-primaryBorder">Here is the project link.</textarea>
+<div class="mt-4 space-y-3 rounded-[22px] bg-neutralSofterBg p-3">
+<div class="flex items-center justify-between gap-4 text-sm"><span>Streaming</span><span class="toggle on"></span></div>
+<div class="flex items-center justify-between gap-4 text-sm"><span>MP3 download</span><span class="toggle on"></span></div>
+<div class="flex items-center justify-between gap-4 text-sm"><span>HQ download (WAV, FLAC...)</span><span class="toggle on"></span></div>
+<div aria-disabled="true" class="premium-option flex items-center justify-between gap-4 text-sm" data-upgrade-trigger="true" role="button" tabindex="0" title="Track information is included in Bridge Pro">
+<span class="premium-option-label"><span>Track information</span></span>
+<span class="premium-control"><span aria-hidden="true" class="toggle locked-toggle"></span><span class="premium-pro-badge" aria-hidden="true"><svg aria-hidden="true" class="premium-pro-diamond" fill="none" viewBox="0 0 21 20" xmlns="http://www.w3.org/2000/svg"><path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="currentColor"></path></svg><span>Pro</span></span></span>
+</div>
+<div aria-disabled="true" class="premium-option flex items-center justify-between gap-4 text-sm" data-upgrade-trigger="true" role="button" tabindex="0" title="Password protection is included in Bridge Pro">
+<span class="premium-option-label"><span>Password protection</span></span>
+<span class="premium-control"><span aria-hidden="true" class="toggle locked-toggle"></span><span class="premium-pro-badge" aria-hidden="true"><svg aria-hidden="true" class="premium-pro-diamond" fill="none" viewBox="0 0 21 20" xmlns="http://www.w3.org/2000/svg"><path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="currentColor"></path></svg><span>Pro</span></span></span>
+</div>
+</div>
+<div class="mt-4 flex justify-end gap-2"><button class="h-9 rounded-md border border-secondaryBorder px-3 text-sm font-semibold hover:bg-neutralSofterBg">Resend email</button><button class="close-edit h-9 rounded-md px-3 text-sm font-semibold hover:bg-neutralSofterBg">Cancel</button><button class="h-9 rounded-md bg-primaryDarkContent px-4 text-sm font-semibold text-white hover:opacity-90">Save</button></div>
+</div>
+</article>
+</div>
+</div>
+<div class="flex h-16 shrink-0 items-center border-t border-secondaryBorder px-5">
+<button class="h-10 rounded-md px-4 text-sm font-semibold hover:bg-neutralSofterBg" id="cancelShare">Cancel</button>
+</div>
 </aside>
+</div>
+</main>
+</div>
+<style>
 
-
-    <main class="main">
-      <div class="top-actions">
-        <button class="btn-top primary" id="openShare">⌯ Share</button>
-        <button class="btn-top">↗ Activity</button>
-      </div>
-
-      <div class="breadcrumb"><span class="folder-icon"></span><span>Projects /</span><strong style="color:#28272d">TEST ALTER-K</strong></div>
-      <div class="hero"><div class="k-logo">K</div></div>
-      <h1>TEST ALTER-K</h1>
-      <div class="updated">Updated 2 days ago</div>
-      <div class="description">Click to add a description...</div>
-
-      <div class="table-header">
-        <div class="project-title"><span class="checkbox"></span> Projects (2)</div>
-        <div>Last Update</div>
-      </div>
-      <div class="row">
-        <div><span class="checkbox"></span> &nbsp; 1</div>
-        <div style="display:flex;align-items:center;gap:12px"><span class="folder-icon folder-small"></span> ALTERK - Test la - 22 04 2026</div>
-        <div>28 avril 2026<br><span style="font-size:13px;color:#777580">Clement Souchier</span></div>
-      </div>
-      <div class="row">
-        <div><span class="checkbox"></span> &nbsp; 2</div>
-        <div style="display:flex;align-items:center;gap:12px"><span class="folder-icon folder-small"></span> LACREME - Test Api - 22 04 2026</div>
-        <div>28 avril 2026<br><span style="font-size:13px;color:#777580">Clement Souchier</span></div>
-      </div>
-    </main>
-
-    <aside class="share-panel">
-      <div class="panel-header">
-        <button class="icon-btn" aria-label="Back">‹</button>
-        <div style="text-align:center">Share project TEST ALTER-K</div>
-        <button class="icon-btn" id="closeShare" aria-label="Close">×</button>
-      </div>
-
-      <div class="panel-content">
-        <p class="intro">Choose how you want to share this project: create a shareable link or send access directly by email.</p>
-
-        <div class="section-label">How do you want to share?</div>
-        <div class="choice-grid accordion-list">
-          <div class="choice-item">
-            <div class="choice-card" data-panel="linkPanel" role="button" tabindex="0" aria-expanded="false" aria-controls="linkPanel">
-              <div class="choice-icon">🔗</div>
-              <div>
-                <div class="choice-title">Share by link</div>
-                <div class="choice-copy">Create a shareable project link for external access.</div>
-              </div>
-              <div class="arrow">⌄</div>
-            </div>
-
-            <div id="linkPanel" class="mini-panel" aria-hidden="true">
-              <label class="field-label">Link name</label>
-              <input placeholder="Enter link name" value="Alter K all" />
-              <div class="settings-list">
-                <div class="setting-row"><span>Streaming</span><span class="toggle"></span></div>
-                <div class="setting-row"><span>MP3 download</span><span class="toggle"></span></div>
-                <div class="setting-row"><span>HQ download (WAV, FLAC...)</span><span class="toggle"></span></div>
-                <div class="setting-row paywalled"><span class="setting-copy">Track information<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
-</svg> Pro</span></span><span class="toggle locked" aria-label="Track information is a Pro feature" title="Upgrade to Pro to unlock Track information"></span></div>
-                <div class="setting-row"><span>Media & documents</span><span class="toggle"></span></div>
-                <div class="setting-row"><span>Project description</span><span class="toggle"></span></div>
-                <div class="setting-row paywalled"><span class="setting-copy">Password protection<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
-</svg> Pro</span></span><span class="toggle locked off" aria-label="Password protection is a Pro feature" title="Upgrade to Pro to unlock Password protection"></span></div>
-              </div>
-              <button class="primary-wide">Create link</button>
-            </div>
-          </div>
-
-          <div class="choice-item">
-            <div class="choice-card" data-panel="emailPanel" role="button" tabindex="0" aria-expanded="false" aria-controls="emailPanel">
-              <div class="choice-icon">✉️</div>
-              <div>
-                <div class="choice-title">Send by email</div>
-                <div class="choice-copy">Send access directly to selected recipients.</div>
-              </div>
-              <div class="arrow">⌄</div>
-            </div>
-
-            <div id="emailPanel" class="mini-panel" aria-hidden="true">
-              <label class="field-label">Recipients</label>
-              <input placeholder="Enter email addresses, separated by commas" />
-              <label class="field-label">Message</label>
-              <textarea placeholder="Add a short message"></textarea>
-              <div class="settings-list">
-                <div class="setting-row"><span>Streaming</span><span class="toggle"></span></div>
-                <div class="setting-row"><span>MP3 download</span><span class="toggle"></span></div>
-                <div class="setting-row"><span>HQ download (WAV, FLAC...)</span><span class="toggle"></span></div>
-                <div class="setting-row paywalled"><span class="setting-copy">Track information<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
-</svg> Pro</span></span><span class="toggle locked" aria-label="Track information is a Pro feature" title="Upgrade to Pro to unlock Track information"></span></div>
-                <div class="setting-row paywalled"><span class="setting-copy">Password protection<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
-</svg> Pro</span></span><span class="toggle locked off" aria-label="Password protection is a Pro feature" title="Upgrade to Pro to unlock Password protection"></span></div>
-              </div>
-              <button class="primary-wide">Send invites</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="subtle-divider"></div>
-
-        <div class="active-header">
-          <h3>Active shares</h3>
-          <span>3 active</span>
-        </div>
-
-        <div class="share-list">
-          <div class="share-item">
-            <div class="share-row">
-              <div class="type-icon">🔗</div>
-              <div><div class="share-name">Lien Alter k all</div><div class="share-meta">Share link · Streaming, downloads, metadata</div></div>
-              <button class="small-btn">⧉ Copy link</button>
-              <button class="edit-btn" aria-label="Edit share settings" aria-expanded="false">✎</button>
-              <span class="toggle"></span>
-            </div>
-            <div class="edit-panel" aria-hidden="true">
-              <label class="field-label">Link name</label>
-              <input value="Lien Alter k all" />
-              <div class="settings-list">
-                <div class="setting-row"><span>Streaming</span><span class="toggle"></span></div>
-                <div class="setting-row"><span>MP3 download</span><span class="toggle"></span></div>
-                <div class="setting-row"><span>HQ download (WAV, FLAC...)</span><span class="toggle"></span></div>
-                <div class="setting-row paywalled"><span class="setting-copy">Track information<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
-</svg> Pro</span></span><span class="toggle locked" aria-label="Track information is a Pro feature" title="Upgrade to Pro to unlock Track information"></span></div>
-                <div class="setting-row"><span>Media & documents</span><span class="toggle"></span></div>
-                <div class="setting-row"><span>Project description</span><span class="toggle"></span></div>
-                <div class="setting-row paywalled"><span class="setting-copy">Password protection<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
-</svg> Pro</span></span><span class="toggle locked off" aria-label="Password protection is a Pro feature" title="Upgrade to Pro to unlock Password protection"></span></div>
-              </div>
-              <div class="edit-actions"><button class="secondary-btn close-edit">Cancel</button><button class="save-btn">Save</button></div>
-            </div>
-          </div>
-
-          <div class="share-item">
-            <div class="share-row">
-              <div class="type-icon">✉️</div>
-              <div><div class="share-name">david.baudart@la-cre.me</div><div class="share-meta">Email invite · Active</div></div>
-              <button class="small-btn">⧉ Copy link</button>
-              <button class="edit-btn" aria-label="Edit email invite settings" aria-expanded="false">✎</button>
-              <span class="toggle"></span>
-            </div>
-            <div class="edit-panel" aria-hidden="true">
-              <label class="field-label">Recipients</label>
-              <input value="david.baudart@la-cre.me" />
-              <label class="field-label">Message</label>
-              <textarea placeholder="Add a short message">Here is the project link.</textarea>
-              <div class="settings-list">
-                <div class="setting-row"><span>Streaming</span><span class="toggle"></span></div>
-                <div class="setting-row"><span>MP3 download</span><span class="toggle"></span></div>
-                <div class="setting-row"><span>HQ download (WAV, FLAC...)</span><span class="toggle"></span></div>
-                <div class="setting-row paywalled"><span class="setting-copy">Track information<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
-</svg> Pro</span></span><span class="toggle locked" aria-label="Track information is a Pro feature" title="Upgrade to Pro to unlock Track information"></span></div>
-                <div class="setting-row paywalled"><span class="setting-copy">Password protection<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
-</svg> Pro</span></span><span class="toggle locked off" aria-label="Password protection is a Pro feature" title="Upgrade to Pro to unlock Password protection"></span></div>
-              </div>
-              <div class="edit-actions"><button class="resend-btn">↻ Resend email</button><button class="secondary-btn close-edit">Cancel</button><button class="save-btn">Save</button></div>
-            </div>
-          </div>
-
-          <div class="share-item">
-            <div class="share-row">
-              <div class="type-icon">✉️</div>
-              <div><div class="share-name">clement+light@bridge.audio</div><div class="share-meta">Email invite · Active</div></div>
-              <button class="small-btn">⧉ Copy link</button>
-              <button class="edit-btn" aria-label="Edit email invite settings" aria-expanded="false">✎</button>
-              <span class="toggle"></span>
-            </div>
-            <div class="edit-panel" aria-hidden="true">
-              <label class="field-label">Recipients</label>
-              <input value="clement+light@bridge.audio" />
-              <label class="field-label">Message</label>
-              <textarea placeholder="Add a short message">Here is the project link.</textarea>
-              <div class="settings-list">
-                <div class="setting-row"><span>Streaming</span><span class="toggle"></span></div>
-                <div class="setting-row"><span>MP3 download</span><span class="toggle"></span></div>
-                <div class="setting-row"><span>HQ download (WAV, FLAC...)</span><span class="toggle"></span></div>
-                <div class="setting-row paywalled"><span class="setting-copy">Track information<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
-</svg> Pro</span></span><span class="toggle locked" aria-label="Track information is a Pro feature" title="Upgrade to Pro to unlock Track information"></span></div>
-                <div class="setting-row paywalled"><span class="setting-copy">Password protection<span class="pro-badge"><svg class="pro-diamond-icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-<path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="#2F43DE"/>
-</svg> Pro</span></span><span class="toggle locked off" aria-label="Password protection is a Pro feature" title="Upgrade to Pro to unlock Password protection"></span></div>
-              </div>
-              <div class="edit-actions"><button class="resend-btn">↻ Resend email</button><button class="secondary-btn close-edit">Cancel</button><button class="save-btn">Save</button></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="footer">
-        <button id="cancelShare">Cancel</button>
-      </div>
-    </aside>
-  </div>
-
-  <div class="chat">▢<span class="badge">1</span></div>
-
-  <script>
-    const openShare = document.getElementById('openShare');
-    const closeShare = document.getElementById('closeShare');
-    const cancelShare = document.getElementById('cancelShare');
-
-    openShare.addEventListener('click', () => {
-      document.body.classList.remove('panel-closed');
-    });
-
-    closeShare.addEventListener('click', () => {
-      document.body.classList.add('panel-closed');
-    });
-
-    cancelShare.addEventListener('click', () => {
-      document.body.classList.add('panel-closed');
-    });
-
-    const cards = document.querySelectorAll('.choice-card');
-    const panels = document.querySelectorAll('.mini-panel');
-
-    function togglePanel(card) {
-      const panel = document.getElementById(card.dataset.panel);
-      const isOpen = card.classList.contains('open');
-
-      cards.forEach(c => {
-        c.classList.remove('open');
-        c.setAttribute('aria-expanded', 'false');
-      });
-      panels.forEach(p => {
-        p.classList.remove('show');
-        p.setAttribute('aria-hidden', 'true');
-      });
-
-      if (!isOpen) {
-        card.classList.add('open');
-        card.setAttribute('aria-expanded', 'true');
-        panel.classList.add('show');
-        panel.setAttribute('aria-hidden', 'false');
-      }
+    /* Bridge DS Pro paywall states */
+    .bridge-surface {
+      border: 1px solid #E7E7E9;
+      background: #FFFFFF;
+      box-shadow: none !important;
     }
 
-    cards.forEach(card => {
-      card.addEventListener('click', () => togglePanel(card));
-      card.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          togglePanel(card);
+    .bridge-soft-surface {
+      border: 1px solid #E7E7E9;
+      background: #F9F9FB;
+      box-shadow: none !important;
+    }
+
+    .share-drawer {
+      border: 1px solid #E7E7E9;
+      box-shadow: none !important;
+    }
+
+    .mini-panel,
+    .share-edit,
+    .share-item {
+      box-shadow: none !important;
+    }
+
+    .premium-option {
+      min-height: 40px;
+      margin-inline: -4px;
+      padding: 8px 8px;
+      border-radius: 14px;
+      border: 1px solid #E7E7E9;
+      background: #FFFFFF;
+      color: #252428;
+    }
+
+    .premium-option-label {
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+      gap: 8px;
+      font-weight: 500;
+    }
+
+    .premium-lock-icon {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      opacity: .72;
+    }
+
+    .premium-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .premium-pro-badge {
+      width: 58px;
+      height: 24px;
+      display: block;
+      flex: 0 0 auto;
+    }
+
+    .locked-toggle {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 22px;
+      flex: 0 0 auto;
+      border-radius: 9999px;
+      background: #EFEFF2;
+      border: 1px solid #D8D8DE;
+    }
+
+    .locked-toggle::after {
+      content: "";
+      position: absolute;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 9999px;
+      background: #FFFFFF;
+      box-shadow: 0 1px 2px rgba(20,20,28,.12);
+    }
+
+    .locked-toggle img {
+      position: relative;
+      z-index: 1;
+      width: 12px;
+      height: 12px;
+      margin-left: 13px;
+      opacity: .62;
+    }
+
+    .premium-option:hover {
+      border-color: #D8D8DE;
+      background: #F9F9FB;
+    }
+
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 22px;
+      flex: 0 0 auto;
+      border-radius: 9999px;
+      background: #E7E7E9;
+      vertical-align: middle;
+    }
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 9999px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(20,20,28,.20);
+      transition: transform .16s ease;
+    }
+    .toggle.on { background: #59D994; }
+    .toggle.on::after { transform: translateX(16px); }
+    .choice-card.is-open { border-color: #A0AFF2; background: #F9F9FB; }
+    .choice-card.is-open .chevron { transform: rotate(180deg); }
+    .share-item.is-open { border-color: #A0AFF2; background: #F9F9FB; }
+    .share-item.is-open .share-edit { display: block; }
+    .share-row:focus-visible { outline: 3px solid #E0E3FA; outline-offset: 3px; border-radius: 18px; }
+  </style>
+<script>
+    const body = document.body;
+    document.getElementById('openShare').addEventListener('click', () => body.classList.add('drawer-open'));
+    document.getElementById('closeShare').addEventListener('click', () => body.classList.remove('drawer-open'));
+    document.getElementById('cancelShare').addEventListener('click', () => body.classList.remove('drawer-open'));
+
+    document.querySelectorAll('.choice-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const panel = document.getElementById(card.dataset.panel);
+        const wasOpen = card.classList.contains('is-open');
+
+        document.querySelectorAll('.choice-card').forEach(item => {
+          item.classList.remove('is-open');
+          item.setAttribute('aria-expanded', 'false');
+        });
+        document.querySelectorAll('.mini-panel').forEach(item => item.classList.add('hidden'));
+
+        if (!wasOpen) {
+          card.classList.add('is-open');
+          card.setAttribute('aria-expanded', 'true');
+          panel.classList.remove('hidden');
         }
       });
     });
 
-    const shareItems = document.querySelectorAll('.share-item');
+    document.querySelectorAll('.share-row').forEach(row => {
+      row.addEventListener('click', event => {
+        if (event.target.closest('.toggle')) return;
+        const item = row.closest('.share-item');
+        const wasOpen = item.classList.contains('is-open');
 
-    function closeShareEditors() {
-      shareItems.forEach(item => {
-        item.classList.remove('open');
-        const button = item.querySelector('.edit-btn');
-        const panel = item.querySelector('.edit-panel');
-        if (button) button.setAttribute('aria-expanded', 'false');
-        if (panel) panel.setAttribute('aria-hidden', 'true');
-      });
-    }
+        document.querySelectorAll('.share-item').forEach(share => {
+          share.classList.remove('is-open');
+          const trigger = share.querySelector('.share-row');
+          if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        });
 
-    function toggleShareEditor(item) {
-      const button = item.querySelector('.edit-btn');
-      const panel = item.querySelector('.edit-panel');
-      const isOpen = item.classList.contains('open');
-      closeShareEditors();
-      if (!isOpen) {
-        item.classList.add('open');
-        if (button) button.setAttribute('aria-expanded', 'true');
-        if (panel) panel.setAttribute('aria-hidden', 'false');
-      }
-    }
-
-    shareItems.forEach(item => {
-      const row = item.querySelector('.share-row');
-      row.setAttribute('role', 'button');
-      row.setAttribute('tabindex', '0');
-      row.addEventListener('click', () => toggleShareEditor(item));
-      row.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          toggleShareEditor(item);
+        if (!wasOpen) {
+          item.classList.add('is-open');
+          row.setAttribute('aria-expanded', 'true');
         }
       });
     });
 
-    document.querySelectorAll('.small-btn, .toggle, .edit-panel button, .edit-panel input, .edit-panel textarea').forEach(element => {
+    document.querySelectorAll('.share-edit, .share-edit input, .share-edit textarea, .share-edit button').forEach(element => {
       element.addEventListener('click', event => event.stopPropagation());
     });
 
-    document.querySelectorAll('.close-edit, .save-btn').forEach(button => {
-      button.addEventListener('click', closeShareEditors);
-    });
-
-    document.querySelectorAll('.resend-btn').forEach(button => {
-      button.addEventListener('click', (event) => {
+    document.querySelectorAll('.close-edit').forEach(button => {
+      button.addEventListener('click', event => {
         event.stopPropagation();
-        const original = button.textContent;
-        button.textContent = '✓ Email resent';
-        window.setTimeout(() => { button.textContent = original; }, 1200);
+        const item = button.closest('.share-item');
+        item.classList.remove('is-open');
+        const trigger = item.querySelector('.share-row');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
       });
     });
-
   </script>
+<div aria-hidden="true" class="pro-upgrade-modal" id="proUpgradeModal">
+<div class="pro-upgrade-backdrop" data-upgrade-close="true"></div>
+<div aria-labelledby="proUpgradeTitle" aria-modal="true" class="pro-upgrade-card" role="dialog">
+<button aria-label="Close" class="pro-upgrade-close" data-upgrade-close="true" type="button">
+<svg class="h-5 w-5 fill-none stroke-current" stroke-width="1.8" viewbox="0 0 24 24"><path d="M6 18 18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+<div class="pro-upgrade-icon-wrap"><div class="pro-upgrade-diamond"><svg aria-hidden="true" class="pro-diamond-icon" fill="none" height="16" viewbox="0 0 21 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="currentColor"></path></svg></div></div>
+<h3 id="proUpgradeTitle">Unlock advanced sharing</h3>
+<p>Access premium sharing controls designed for professional music delivery.</p>
+<div class="pro-upgrade-benefit-groups" aria-label="Bridge Pro benefits">
+  <section class="pro-upgrade-benefit-group">
+    <h4>Included with Bridge Pro</h4>
+    <ul class="pro-upgrade-benefits pro-upgrade-benefits-checks">
+      <li><span>Track information</span></li>
+      <li><span>Password protection</span></li>
+    </ul>
+  </section>
+  <section class="pro-upgrade-benefit-group">
+    <h4>But also</h4>
+    <ul class="pro-upgrade-benefits pro-upgrade-benefits-icons">
+      <li><span class="pro-upgrade-benefit-icon"><svg class="pro-upgrade-benefit-icon-svg" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M4.5 9.75C4.5 6.43629 7.18629 3.75 10.5 3.75C13.028 3.75 15.1893 5.31282 16.0733 7.52408C16.2135 7.50816 16.3559 7.5 16.5 7.5C18.5711 7.5 20.25 9.17893 20.25 11.25C20.25 11.4459 20.2349 11.6386 20.2058 11.827C21.5744 12.5981 22.5 14.0653 22.5 15.75C22.5 18.2353 20.4853 20.25 18 20.25H6.75C3.85051 20.25 1.5 17.8995 1.5 15C1.5 12.8968 2.73627 11.084 4.52024 10.2459C4.50683 10.0822 4.5 9.91686 4.5 9.75Z" fill="currentColor"/>
+</svg></span><span>More Storage</span></li>
+      <li><span class="pro-upgrade-benefit-icon"><svg class="pro-upgrade-benefit-icon-svg" aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M6.875 5.625C6.875 3.89911 8.27411 2.5 10 2.5C11.7259 2.5 13.125 3.89911 13.125 5.625C13.125 7.35089 11.7259 8.75 10 8.75C8.27411 8.75 6.875 7.35089 6.875 5.625Z" fill="currentColor"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M13.125 8.125C13.125 6.74429 14.2443 5.625 15.625 5.625C17.0057 5.625 18.125 6.74429 18.125 8.125C18.125 9.50571 17.0057 10.625 15.625 10.625C14.2443 10.625 13.125 9.50571 13.125 8.125Z" fill="currentColor"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M1.875 8.125C1.875 6.74429 2.99429 5.625 4.375 5.625C5.75571 5.625 6.875 6.74429 6.875 8.125C6.875 9.50571 5.75571 10.625 4.375 10.625C2.99429 10.625 1.875 9.50571 1.875 8.125Z" fill="currentColor"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M5.25822 12.5979C6.25653 11.037 8.00696 10 10 10C11.9933 10 13.7439 11.0373 14.7422 12.5985C15.4323 13.6779 15.7309 14.9793 15.5908 16.2483C15.5689 16.4466 15.4537 16.6225 15.2806 16.7218C13.7245 17.6147 11.9209 18.125 10 18.125C8.0791 18.125 6.27549 17.6147 4.71937 16.7218C4.54633 16.6225 4.43108 16.4466 4.40919 16.2483C4.26911 14.9791 4.56784 13.6774 5.25822 12.5979Z" fill="currentColor"/>
+<path d="M4.23524 11.8781C4.2252 11.8935 4.21523 11.9089 4.20531 11.9244C3.40076 13.1824 3.03257 14.6806 3.14559 16.1575C2.63889 16.0805 2.14725 15.9567 1.67536 15.7906L1.57956 15.7568C1.4048 15.6953 1.28269 15.5366 1.26799 15.3519L1.25994 15.2506C1.25335 15.1678 1.25 15.0842 1.25 15C1.25 13.3209 2.5742 11.9512 4.23524 11.8781Z" fill="currentColor"/>
+<path d="M16.8547 16.1575C16.9677 14.6808 16.5997 13.183 15.7954 11.9251C15.7854 11.9094 15.7753 11.8937 15.7651 11.8781C17.426 11.9513 18.75 13.321 18.75 15C18.75 15.0842 18.7467 15.1678 18.7401 15.2506L18.732 15.3519C18.7173 15.5366 18.5952 15.6953 18.4204 15.7568L18.3246 15.7906C17.8528 15.9567 17.3613 16.0805 16.8547 16.1575Z" fill="currentColor"/>
+</svg></span><span>More Seats</span></li>
+      <li><span class="pro-upgrade-benefit-icon"><svg class="pro-upgrade-benefit-icon-svg" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M3 6C3 4.34315 4.34315 3 6 3H18C19.6569 3 21 4.34315 21 6V18C21 19.6569 19.6569 21 18 21H6C4.34315 21 3 19.6569 3 18V6ZM7.5 13.5C7.91421 13.5 8.25 13.8358 8.25 14.25V16.5C8.25 16.9142 7.91421 17.25 7.5 17.25C7.08579 17.25 6.75 16.9142 6.75 16.5V14.25C6.75 13.8358 7.08579 13.5 7.5 13.5ZM11.25 12C11.25 11.5858 10.9142 11.25 10.5 11.25C10.0858 11.25 9.75 11.5858 9.75 12V16.5C9.75 16.9142 10.0858 17.25 10.5 17.25C10.9142 17.25 11.25 16.9142 11.25 16.5V12ZM13.5 9C13.9142 9 14.25 9.33579 14.25 9.75V16.5C14.25 16.9142 13.9142 17.25 13.5 17.25C13.0858 17.25 12.75 16.9142 12.75 16.5V9.75C12.75 9.33579 13.0858 9 13.5 9ZM17.25 7.5C17.25 7.08579 16.9142 6.75 16.5 6.75C16.0858 6.75 15.75 7.08579 15.75 7.5V16.5C15.75 16.9142 16.0858 17.25 16.5 17.25C16.9142 17.25 17.25 16.9142 17.25 16.5V7.5Z" fill="currentColor"/>
+</svg></span><span>Advanced analytics &amp; Insights</span></li>
+      <li><span class="pro-upgrade-benefit-icon"><svg class="pro-upgrade-benefit-icon-svg" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" fill="currentColor"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M1.32341 11.4467C2.81066 6.97571 7.02791 3.75 12.0005 3.75C16.9708 3.75 21.1864 6.97271 22.6755 11.4405C22.7959 11.8015 22.796 12.1922 22.6759 12.5533C21.1886 17.0243 16.9714 20.25 11.9988 20.25C7.02847 20.25 2.81284 17.0273 1.32374 12.5595C1.2034 12.1985 1.20328 11.8078 1.32341 11.4467ZM17.25 12C17.25 14.8995 14.8995 17.25 12 17.25C9.1005 17.25 6.75 14.8995 6.75 12C6.75 9.1005 9.1005 6.75 12 6.75C14.8995 6.75 17.25 9.1005 17.25 12Z" fill="currentColor"/>
+</svg></span><span>Discovery Hubs Exposure</span></li>
+    </ul>
+  </section>
+</div>
+<div class="pro-upgrade-actions">
+<a class="pro-upgrade-primary" href="#pricing"><svg aria-hidden="true" class="pro-diamond-icon" fill="none" height="16" viewbox="0 0 21 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M5.26953 1.36719L6.35156 3.74805L8.18555 4.58203H15.7246L15.8096 4.58691C16.005 4.61152 16.1821 4.72048 16.293 4.88672L19.0273 8.98828C19.197 9.24307 19.1768 9.58007 18.9775 9.8125L10.7744 19.3828C10.6425 19.5365 10.4486 19.6238 10.2461 19.6211C10.0434 19.6181 9.85124 19.5256 9.72363 19.3682L1.97656 9.79785C1.80124 9.58124 1.77502 9.27883 1.91016 9.03516L3.0498 6.98438L3.19824 6.71484L0.945312 5.69141L0 5.26172L0.945312 4.83203L3.32715 3.74902L4.41016 1.36719L4.83984 0.421875L5.26953 1.36719ZM8.93555 9.35742L7.48242 10.0176L8.93555 10.6787L9.59668 12.1318L10.2568 10.6787L11.7109 10.0176L10.2568 9.35742L9.59668 7.9043L8.93555 9.35742ZM4.11426 4.30176L4.04102 4.46289L3.87988 4.53613L2.28125 5.26172L3.87988 5.98828L4.04102 6.06152L4.11426 6.22266L4.83984 7.82031L5.56641 6.22266L5.63965 6.06152L5.80078 5.98828L7.39844 5.26172L5.80078 4.53613L5.63965 4.46289L5.56641 4.30176L4.83984 2.70312L4.11426 4.30176Z" fill="currentColor"></path></svg><span>Turn Pro to Unlock</span></a>
+<button class="pro-upgrade-secondary" data-upgrade-close="true" type="button">Not now</button>
+</div>
+</div>
+</div>
+<style>
+/* Pro paywall conversion pattern — disabled toggle + Pro badge + upgrade modal */
+.premium-option {
+  cursor: pointer;
+  border-color: #E7E7E9;
+  background: #FFFFFF;
+  transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+.premium-option:hover {
+  border-color: #A0AFF2;
+  background: #F9F9FB;
+}
+.premium-option:focus-visible {
+  outline: 3px solid #E0E3FA;
+  outline-offset: 2px;
+}
+.premium-option-label {
+  gap: 0;
+  color: #252428;
+}
+.premium-control {
+  gap: 8px;
+}
+.premium-pro-badge {
+  display: block;
+  width: 58px;
+  height: 24px;
+}
+.locked-toggle {
+  display: inline-block !important;
+  background: #EFEFF2 !important;
+  border: 1px solid #D8D8DE;
+  opacity: .95;
+  cursor: pointer;
+}
+.locked-toggle::after {
+  transform: none !important;
+  box-shadow: 0 1px 2px rgba(20,20,28,.12);
+}
+.premium-option:hover .locked-toggle {
+  border-color: #A0AFF2;
+}
+.pro-upgrade-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.pro-upgrade-modal.is-open { display: flex; }
+.pro-upgrade-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(37,36,40,.28);
+}
+.pro-upgrade-card {
+  position: relative;
+  width: min(420px, 100%);
+  border-radius: 24px;
+  border: 1px solid #E7E7E9;
+  background: #FFFFFF;
+  padding: 24px;
+  box-shadow: 0 16px 50px rgba(20,20,28,.16);
+  color: #252428;
+}
+.pro-upgrade-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  height: 36px;
+  width: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #777580;
+}
+.pro-upgrade-close:hover { background: #F9F9FB; color: #252428; }
+.pro-upgrade-badge { width: 77px; height: 32px; display: block; }
+.pro-upgrade-icon-wrap { margin-bottom: 18px; }
+.pro-upgrade-card h3 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: -.03em;
+  font-weight: 700;
+}
+.pro-upgrade-card p {
+  margin: 10px 0 0;
+  color: #777580;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.pro-upgrade-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+.pro-upgrade-primary, .pro-upgrade-secondary {
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.pro-upgrade-primary {
+  background: #252428;
+  color: #FFFFFF;
+}
+.pro-upgrade-secondary {
+  background: #FFFFFF;
+  color: #252428;
+  border: 1px solid #E7E7E9;
+}
+@media (max-width: 560px) {
+  .pro-upgrade-actions { flex-direction: column; }
+  .pro-upgrade-primary, .pro-upgrade-secondary { width: 100%; }
+}
+
+/* Final share-context Pro pill — white fill, Bridge-blue stroke/text/icon. Modal CTA unchanged. */
+.premium-control .premium-pro-badge {
+  width: auto !important;
+  min-width: 54px;
+  height: 24px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 8px;
+  border-radius: 9999px;
+  border: 1px solid #4456E1;
+  background: #FFFFFF;
+  color: #4456E1;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  box-shadow: none;
+}
+.premium-control .premium-pro-badge svg,
+.premium-control .premium-pro-badge .premium-pro-diamond {
+  width: 13px !important;
+  height: 13px !important;
+  color: #4456E1;
+  flex: 0 0 auto;
+}
+.premium-option:hover .premium-pro-badge {
+  background: #FFFFFF;
+  border-color: #2F43DE;
+  color: #2F43DE;
+}
+.premium-option:hover .premium-pro-badge svg,
+.premium-option:hover .premium-pro-badge .premium-pro-diamond {
+  color: #2F43DE;
+}
+.pro-upgrade-primary {
+  background: #4456E1 !important;
+  color: #FFFFFF !important;
+}
+.pro-upgrade-primary:hover {
+  background: #2F43DE !important;
+}
+
+</style>
+<script>
+  document.querySelectorAll('[data-upgrade-trigger="true"]').forEach(option => {
+    const openUpgrade = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const modal = document.getElementById('proUpgradeModal');
+      if (modal) {
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+    };
+    option.addEventListener('click', openUpgrade);
+    option.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') openUpgrade(event);
+    });
+  });
+  document.querySelectorAll('[data-upgrade-close="true"]').forEach(close => {
+    close.addEventListener('click', event => {
+      event.preventDefault();
+      const modal = document.getElementById('proUpgradeModal');
+      if (modal) {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+    });
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      const modal = document.getElementById('proUpgradeModal');
+      if (modal) {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+    }
+  });
+</script>
+
+<style>
+/* Final paywall CTA polish — Bridge blue Turn Pro with inline diamond */
+.premium-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.turn-pro-cta,
+.pro-upgrade-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 32px;
+  min-height: 32px;
+  border: 0;
+  border-radius: 6px;
+  background: #4456E1;
+  color: #FFFFFF;
+  padding: 0 12px;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .16s ease, opacity .16s ease, transform .16s ease;
+}
+.turn-pro-cta:hover,
+.pro-upgrade-primary:hover {
+  background: #2F43DE;
+}
+.turn-pro-cta:focus-visible,
+.pro-upgrade-primary:focus-visible {
+  outline: 3px solid #E0E3FA;
+  outline-offset: 2px;
+}
+.pro-diamond-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  color: currentColor;
+  display: block;
+}
+.locked-toggle {
+  display: inline-block !important;
+  background: #EFEFF2 !important;
+  border: 1px solid #D8D8DE;
+  opacity: .95;
+  cursor: pointer;
+}
+.locked-toggle::after {
+  transform: none !important;
+  box-shadow: 0 1px 2px rgba(20,20,28,.12);
+}
+.premium-pro-badge,
+.pro-upgrade-badge,
+.premium-lock-icon,
+.locked-toggle img {
+  display: none !important;
+}
+.pro-upgrade-icon-wrap {
+  margin-bottom: 18px;
+}
+.pro-upgrade-diamond {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #4456E1;
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.pro-upgrade-diamond .pro-diamond-icon {
+  width: 22px;
+  height: 22px;
+}
+.pro-upgrade-primary {
+  height: 40px;
+  min-height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+@media (max-width: 560px) {
+  .premium-option {
+    align-items: flex-start;
+  }
+  .premium-control {
+    gap: 8px;
+  }
+  .turn-pro-cta {
+    height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+}
+</style>
+
+<style>
+/* Final hierarchy fix — small Pro pill in share settings, blue CTA only in modal */
+.premium-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.premium-pro-badge {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: auto !important;
+  height: 24px;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 0;
+  background: #4456E1;
+  color: #FFFFFF;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.premium-pro-diamond {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+  color: currentColor;
+  display: block;
+}
+.premium-option:hover .premium-pro-badge {
+  background: #2F43DE;
+}
+.premium-lock-icon,
+.locked-toggle img {
+  display: none !important;
+}
+.turn-pro-cta {
+  display: none !important;
+}
+.pro-upgrade-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 40px;
+  min-height: 40px;
+  border: 0;
+  border-radius: 6px;
+  background: #4456E1;
+  color: #FFFFFF;
+  padding: 0 16px;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pro-upgrade-primary:hover { background: #2F43DE; }
+.pro-upgrade-primary .pro-diamond-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  color: currentColor;
+  display: block;
+}
+@media (max-width: 560px) {
+  .premium-option { align-items: center; }
+  .premium-control { gap: 7px; }
+}
+</style>
+
+<style>
+/* Final hover polish — Share drawer Pro pill only. Modal CTA remains unchanged. */
+.premium-control .premium-pro-badge {
+  background: #FFFFFF !important;
+  border: 1px solid #4456E1 !important;
+  color: #4456E1 !important;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+.premium-control .premium-pro-badge svg,
+.premium-control .premium-pro-badge .premium-pro-diamond,
+.premium-control .premium-pro-badge span {
+  color: inherit !important;
+  transition: color .18s ease;
+}
+.premium-option:hover .premium-control .premium-pro-badge,
+.premium-control .premium-pro-badge:hover {
+  background: #4456E1 !important;
+  border-color: #4456E1 !important;
+  color: #FFFFFF !important;
+}
+.premium-option:active .premium-control .premium-pro-badge,
+.premium-control .premium-pro-badge:active {
+  background: #2F43DE !important;
+  border-color: #2F43DE !important;
+  color: #FFFFFF !important;
+}
+.pro-upgrade-primary {
+  background: #4456E1 !important;
+  color: #FFFFFF !important;
+}
+.pro-upgrade-primary:hover {
+  background: #2F43DE !important;
+  color: #FFFFFF !important;
+}
+
+.pro-upgrade-benefit-groups {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+.pro-upgrade-benefit-group {
+  display: grid;
+  gap: 9px;
+}
+.pro-upgrade-benefit-group h4 {
+  margin: 0;
+  color: #252428;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: .02em;
+}
+
+.pro-upgrade-benefits {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pro-upgrade-benefits li {
+  position: relative;
+  padding-left: 24px;
+  color: #252428;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+.pro-upgrade-benefits li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #4456E1;
+  font-weight: 800;
+}
+.pro-upgrade-primary span {
+  white-space: nowrap;
+}
+</style>
+
+
+<style>
+/* Modal polish — lighter hierarchy + dedicated icons for global Pro benefits */
+.pro-upgrade-benefit-groups {
+  gap: 14px !important;
+  margin-top: 18px !important;
+}
+.pro-upgrade-benefit-group {
+  gap: 8px !important;
+}
+.pro-upgrade-benefit-group h4 {
+  color: #777580 !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  font-weight: 650 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+}
+.pro-upgrade-benefits {
+  gap: 7px !important;
+}
+.pro-upgrade-benefits li {
+  min-height: 26px;
+  color: #252428 !important;
+  font-size: 14px !important;
+  line-height: 1.35 !important;
+  font-weight: 500 !important;
+}
+.pro-upgrade-benefits-checks li {
+  padding-left: 24px !important;
+}
+.pro-upgrade-benefits-checks li::before {
+  content: "✓" !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 2px !important;
+  color: #4456E1 !important;
+  font-weight: 800 !important;
+}
+.pro-upgrade-benefits-icons li {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding-left: 0 !important;
+}
+.pro-upgrade-benefits-icons li::before {
+  content: none !important;
+}
+.pro-upgrade-benefit-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #F7F7F8;
+  border: 1px solid #E7E7E9;
+  color: #4456E1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.pro-upgrade-benefit-icon-svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+  color: currentColor;
+}
+.pro-upgrade-card h3 {
+  font-weight: 680 !important;
+}
+.pro-upgrade-card p {
+  font-weight: 400 !important;
+}
+</style>
 </body>
 </html>
